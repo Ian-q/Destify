@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Destify — Tokyo, Feb 2026</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --sage: #8B9D83;
+    --sage-deep: #6E8068;
+    --terracotta: #C07856;
+    --terracotta-soft: #E8B89C;
+    --ocean: #2D5A7B;
+    --ocean-deep: #1F3F58;
+    --sand: #F5EDE0;
+    --sand-deep: #EBDFC8;
+    --lavender: #B8A8D8;
+    --lavender-soft: #E0D7EE;
+    --mocha: #948B82;
+    --mocha-soft: #C9C2BB;
+    --cream: #FDFBF7;
+    --cream-warm: #FAF6EE;
+    --charcoal: #2C3033;
+    --charcoal-soft: #4A4F54;
+
+    --shadow-sm: 0 1px 2px rgba(44,48,51,.04), 0 1px 3px rgba(44,48,51,.04);
+    --shadow-md: 0 2px 8px rgba(44,48,51,.06), 0 4px 16px rgba(44,48,51,.04);
+    --shadow-lg: 0 4px 12px rgba(44,48,51,.08), 0 12px 28px rgba(44,48,51,.06);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    color: var(--charcoal);
+    background: var(--cream);
+    font-feature-settings: "ss01","cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(184,168,216,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(192,120,86,.08), transparent 60%),
+      linear-gradient(180deg, var(--cream-warm) 0%, var(--cream) 600px);
+  }
+  .serif { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.01em; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ——— top bar ——— */
+  .topbar {
+    height: 60px;
+    display: flex; align-items: center; gap: 24px;
+    padding: 0 28px;
+    border-bottom: 1px solid rgba(148,139,130,.14);
+    background: rgba(253,251,247,.85);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--sage) 0%, var(--ocean) 100%);
+    position: relative;
+    display: grid; place-items: center;
+    color: var(--cream);
+  }
+  .brand-name { font-family: 'Fraunces', serif; font-weight: 500; font-size: 18px; }
+  .brand-name em { font-style: italic; color: var(--sage-deep); }
+  .nav { display: flex; gap: 4px; margin-left: 8px; }
+  .nav a {
+    padding: 6px 12px; border-radius: 8px;
+    font-size: 14px; color: var(--mocha);
+    text-decoration: none; transition: all 160ms ease;
+  }
+  .nav a:hover { color: var(--charcoal); background: var(--sand); }
+  .nav a.active { color: var(--charcoal); background: var(--sand); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 13px; color: var(--charcoal-soft);
+    background: var(--sand);
+    border: 1px solid rgba(148,139,130,.10);
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--terracotta), var(--lavender));
+    display: grid; place-items: center;
+    color: white; font-weight: 600; font-size: 13px;
+  }
+
+  /* ——— trip header ——— */
+  .trip-header {
+    padding: 28px 32px 18px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .trip-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .trip-title em { font-style: italic; color: var(--terracotta); }
+  .trip-meta {
+    display: flex; align-items: center; gap: 14px;
+    color: var(--mocha); font-size: 14px;
+  }
+  .trip-meta .dot { width: 3px; height: 3px; border-radius: 999px; background: var(--mocha-soft); }
+  .progress-card {
+    background: var(--cream);
+    border: 1px solid rgba(148,139,130,.14);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    min-width: 280px;
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-card-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .progress-label { font-size: 12px; color: var(--mocha); text-transform: uppercase; letter-spacing: 0.08em; }
+  .progress-value { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; }
+  .progress-bar {
+    height: 6px; background: var(--sand); border-radius: 999px; margin-top: 10px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--sage-deep)); border-radius: 999px; transition: width 400ms ease; }
+
+  /* ——— main grid ——— */
+  .main {
+    display: grid;
+    grid-template-columns: 420px 1fr 360px;
+    gap: 18px;
+    padding: 8px 28px 40px;
+    align-items: start;
+  }
+  /* the right rail also sticks but with its own scroll */
+  .right-rail-wrap { position: sticky; top: 76px; max-height: calc(100vh - 92px); overflow-y: auto; padding-right: 4px; }
+  .right-rail-wrap::-webkit-scrollbar { width: 6px; }
+  .right-rail-wrap::-webkit-scrollbar-thumb { background: var(--mocha-soft); border-radius: 3px; }
+  @media (max-width: 1280px) { .main { grid-template-columns: 380px 1fr; } .right-rail { grid-column: 1 / -1; } }
+  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--cream);
+    border: 1px solid rgba(148,139,130,.12);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 18px 20px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .panel-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500; font-size: 20px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .panel-sub { font-size: 12px; color: var(--mocha); margin-top: 2px; }
+  .seg { display: inline-flex; padding: 3px; background: var(--sand); border-radius: 999px; gap: 2px; }
+  .seg button {
+    border: 0; background: transparent;
+    padding: 5px 12px; font-size: 12.5px; color: var(--mocha);
+    border-radius: 999px; cursor: pointer; font-family: inherit;
+    transition: all 160ms ease;
+  }
+  .seg button.on { background: var(--cream); color: var(--charcoal); box-shadow: var(--shadow-sm); }
+
+  /* ——— left rail: day picker ——— */
+  .day-picker {
+    padding: 0 20px 14px;
+    display: flex; gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .day-picker::-webkit-scrollbar { display: none; }
+  .day {
+    flex: 0 0 auto;
+    min-width: 56px;
+    padding: 10px 8px;
+    border-radius: 14px;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    transition: all 180ms ease;
+    font-family: inherit;
+  }
+  .day .dow { font-size: 10px; color: var(--mocha); text-transform: uppercase; letter-spacing: 0.1em; }
+  .day .num { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; color: var(--charcoal); margin-top: 2px; }
+  .day .dots { display: flex; gap: 3px; justify-content: center; margin-top: 6px; min-height: 4px; }
+  .day .dots span { width: 4px; height: 4px; border-radius: 999px; background: var(--mocha-soft); }
+  .day .dots span.f { background: var(--ocean); }
+  .day .dots span.h { background: var(--lavender); }
+  .day .dots span.a { background: var(--terracotta); }
+  .day:hover { background: var(--sand); }
+  .day.on {
+    background: var(--charcoal);
+    border-color: var(--charcoal);
+  }
+  .day.on .dow, .day.on .num { color: var(--cream); }
+  .day.on .dots span { background: rgba(253,251,247,.4); }
+  .day.on .dots span.f { background: var(--terracotta-soft); }
+
+  /* ——— timeline ——— */
+  .timeline { padding: 4px 20px 20px; position: relative; }
+  .timeline-day-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 10px 0 14px; border-top: 1px dashed rgba(148,139,130,.2); margin-top: 6px;
+  }
+  .timeline-day-head:first-child { border-top: 0; margin-top: 0; padding-top: 4px; }
+  .day-label {
+    font-size: 11px; color: var(--mocha);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .day-where { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; color: var(--charcoal); }
+
+  .tl-item {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+    position: relative;
+    padding: 4px 0;
+  }
+  .tl-line {
+    position: absolute;
+    left: 21px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, var(--mocha-soft) 8%, var(--mocha-soft) 92%, transparent);
+  }
+  .tl-item:first-child .tl-line { top: 22px; }
+  .tl-item:last-child .tl-line { bottom: 22px; }
+  .tl-icon {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    display: grid; place-items: center;
+    z-index: 1;
+    background: var(--cream);
+    border: 1px solid rgba(148,139,130,.14);
+    box-shadow: var(--shadow-sm);
+    color: var(--charcoal-soft);
+  }
+  .tl-icon.flight { background: linear-gradient(135deg, #EAF1F7, #DDE9F2); color: var(--ocean); border-color: rgba(45,90,123,.18); }
+  .tl-icon.hotel { background: linear-gradient(135deg, var(--lavender-soft), #D4C8E8); color: #5C4B85; border-color: rgba(184,168,216,.4); }
+  .tl-icon.activity { background: linear-gradient(135deg, #F1E4D8, var(--sand)); color: var(--terracotta); border-color: rgba(192,120,86,.22); }
+  .tl-icon.transit { background: linear-gradient(135deg, #E5EFE3, #D6E4D2); color: var(--sage-deep); border-color: rgba(139,157,131,.3); }
+  .tl-icon.checkpoint { background: var(--charcoal); color: var(--cream); border-color: var(--charcoal); }
+
+  .tl-card {
+    background: var(--cream);
+    border: 1px solid rgba(148,139,130,.12);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    margin-bottom: 8px;
+  }
+  .tl-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color: rgba(148,139,130,.24); }
+  .tl-card.active { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(139,157,131,.15), var(--shadow-md); }
+  .tl-card-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    margin-bottom: 4px;
+  }
+  .tl-card-title { font-weight: 600; font-size: 14.5px; letter-spacing: -0.005em; }
+  .tl-card-time { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--mocha); }
+  .tl-card-sub { font-size: 12.5px; color: var(--mocha); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tl-card-sub strong { color: var(--charcoal-soft); font-weight: 500; }
+  .tl-card .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 500;
+    background: var(--sand); color: var(--charcoal-soft);
+    border: 1px solid rgba(148,139,130,.16);
+  }
+  .tl-card .badge.warn { background: #FBEDDF; color: var(--terracotta); border-color: rgba(192,120,86,.3); }
+  .tl-card .badge.ok { background: #E8EFE6; color: var(--sage-deep); border-color: rgba(139,157,131,.3); }
+
+  /* checkpoint card (pre-flight checklist trigger) */
+  .checkpoint-card {
+    background: linear-gradient(135deg, #2C3033 0%, #3A4148 100%);
+    color: var(--cream);
+    border-color: var(--charcoal);
+    position: relative;
+    overflow: hidden;
+  }
+  .checkpoint-card::after {
+    content: ''; position: absolute; right: -20px; top: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(184,168,216,.3), transparent 70%);
+  }
+  .checkpoint-card .tl-card-title { color: var(--cream); position: relative; }
+  .checkpoint-card .tl-card-time { color: rgba(253,251,247,.6); }
+  .checkpoint-card .tl-card-sub { color: rgba(253,251,247,.7); }
+  .checkpoint-card:hover { box-shadow: 0 8px 24px rgba(44,48,51,.2); }
+  .checkpoint-progress {
+    position: relative;
+    margin-top: 10px;
+    height: 4px;
+    background: rgba(253,251,247,.15);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .checkpoint-progress span {
+    display: block; height: 100%;
+    background: var(--terracotta-soft);
+    border-radius: 999px;
+    transition: width 360ms ease;
+  }
+
+  /* ——— map ——— */
+  .map-panel { padding: 0; min-height: 640px; display: flex; flex-direction: column; position: sticky; top: 76px; max-height: calc(100vh - 92px); }
+  .map-head { padding: 18px 22px 10px; display: flex; align-items: center; justify-content: space-between; }
+  .map-stage {
+    flex: 1; position: relative;
+    background: linear-gradient(180deg, #EAF1F7 0%, #F1E9DA 60%, #F5EDE0 100%);
+    overflow: hidden;
+    border-top: 1px solid rgba(148,139,130,.10);
+  }
+  .map-svg { width: 100%; height: 100%; display: block; }
+
+  .map-overlay {
+    position: absolute; left: 16px; top: 16px;
+    background: rgba(253,251,247,.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(148,139,130,.16);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 12px;
+    box-shadow: var(--shadow-sm);
+    max-width: 240px;
+  }
+  .map-overlay .k { color: var(--mocha); text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+  .map-overlay .v { font-family: 'Fraunces', serif; font-size: 16px; margin-top: 2px; }
+
+  .map-legend {
+    position: absolute; right: 16px; bottom: 16px;
+    background: rgba(253,251,247,.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(148,139,130,.16);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 11.5px;
+    box-shadow: var(--shadow-sm);
+    display: grid; gap: 6px;
+  }
+  .map-legend .row { display: flex; align-items: center; gap: 8px; color: var(--charcoal-soft); }
+  .map-legend .swatch { width: 14px; height: 8px; border-radius: 4px; }
+
+  .map-controls {
+    position: absolute; right: 16px; top: 16px;
+    display: grid; gap: 6px;
+  }
+  .map-btn {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(253,251,247,.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(148,139,130,.16);
+    display: grid; place-items: center;
+    cursor: pointer; color: var(--charcoal-soft);
+    box-shadow: var(--shadow-sm);
+    transition: all 160ms ease;
+  }
+  .map-btn:hover { color: var(--charcoal); background: var(--cream); }
+
+  /* ——— right rail ——— */
+  .right-rail { display: grid; gap: 18px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 18px; }
+  .stat {
+    background: var(--sand);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+  }
+  .stat .k { font-size: 10.5px; color: var(--mocha); text-transform: uppercase; letter-spacing: 0.1em; }
+  .stat .v { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; margin-top: 2px; letter-spacing: -0.01em; }
+  .stat .delta { font-size: 11px; color: var(--sage-deep); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+  .stat.budget { background: linear-gradient(135deg, var(--lavender-soft), #E8DFF2); }
+  .stat.flight { background: linear-gradient(135deg, #EAF1F7, #DDE9F2); }
+  .stat.hotel { background: linear-gradient(135deg, var(--sand), #ECDFC8); }
+  .stat.activity { background: linear-gradient(135deg, #F1E4D8, #E8D5C2); }
+
+  .doc-list { padding: 0 20px 16px; display: grid; gap: 8px; }
+  .doc {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(148,139,130,.14);
+    border-radius: var(--radius-md);
+    background: var(--cream);
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+  .doc:hover { border-color: var(--mocha-soft); background: #FAF6EE; }
+  .doc-tick {
+    width: 22px; height: 22px; border-radius: 7px;
+    background: var(--sand); display: grid; place-items: center;
+    flex: 0 0 auto;
+    color: transparent;
+    border: 1px solid rgba(148,139,130,.2);
+    transition: all 200ms ease;
+  }
+  .doc.done .doc-tick { background: var(--sage-deep); color: var(--cream); border-color: var(--sage-deep); }
+  .doc.warn .doc-tick { background: var(--terracotta); color: var(--cream); border-color: var(--terracotta); }
+  .doc-text { flex: 1; font-size: 13px; }
+  .doc-text .t { font-weight: 500; }
+  .doc-text .s { color: var(--mocha); font-size: 11.5px; margin-top: 1px; }
+  .doc-link { font-size: 11px; color: var(--ocean); text-decoration: none; }
+  .doc-link:hover { text-decoration: underline; }
+
+  /* hotel selection cards */
+  .hotel-list { padding: 0 20px 18px; display: grid; gap: 10px; }
+  .hotel {
+    display: grid; grid-template-columns: 80px 1fr;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(148,139,130,.14);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+  .hotel:hover { border-color: var(--mocha-soft); box-shadow: var(--shadow-sm); }
+  .hotel.selected { border-color: var(--sage); background: #F4F7F2; }
+  .hotel-img {
+    width: 80px; height: 80px;
+    border-radius: var(--radius-sm);
+    background-image:
+      linear-gradient(135deg, rgba(255,255,255,.05), rgba(0,0,0,.08)),
+      repeating-linear-gradient(45deg, var(--sand-deep) 0px, var(--sand-deep) 8px, var(--sand) 8px, var(--sand) 16px);
+    position: relative;
+    overflow: hidden;
+  }
+  .hotel-img.lavender {
+    background-image:
+      linear-gradient(135deg, rgba(255,255,255,.1), rgba(0,0,0,.08)),
+      repeating-linear-gradient(45deg, #D4C8E8 0px, #D4C8E8 8px, var(--lavender-soft) 8px, var(--lavender-soft) 16px);
+  }
+  .hotel-img.ocean {
+    background-image:
+      linear-gradient(135deg, rgba(255,255,255,.1), rgba(0,0,0,.08)),
+      repeating-linear-gradient(45deg, #C5D6E2 0px, #C5D6E2 8px, #DDE9F2 8px, #DDE9F2 16px);
+  }
+  .hotel-img::after {
+    content: attr(data-label); position: absolute; bottom: 4px; left: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: rgba(44,48,51,.5);
+  }
+  .hotel-info { min-width: 0; }
+  .hotel-info .name { font-weight: 600; font-size: 13.5px; }
+  .hotel-info .meta { font-size: 11.5px; color: var(--mocha); margin-top: 2px; }
+  .hotel-info .price-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px; }
+  .hotel-info .price { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; }
+  .hotel-info .price small { font-size: 10.5px; color: var(--mocha); font-family: 'Inter', sans-serif; font-weight: 400; }
+  .hotel-info .stars { font-size: 11px; color: var(--terracotta); letter-spacing: 1px; }
+
+  /* ——— flowchart canvas modal ——— */
+  .flow-overlay {
+    position: fixed; inset: 0;
+    background: rgba(44,48,51,.55);
+    backdrop-filter: blur(6px);
+    display: none;
+    place-items: center;
+    z-index: 100;
+    animation: fadein 240ms ease;
+  }
+  .flow-overlay.open { display: grid; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slidein { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: none; } }
+  @keyframes nodepop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+  @keyframes drawline { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
+
+  .flow-modal {
+    width: min(1180px, 96vw);
+    height: min(800px, 92vh);
+    background: var(--cream);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 60px rgba(44,48,51,.3);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+    animation: slidein 320ms cubic-bezier(.2,.8,.2,1);
+  }
+  .flow-head {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid rgba(148,139,130,.12);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    background: var(--cream-warm);
+  }
+  .flow-head h2 {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 24px;
+    margin: 0 0 2px; letter-spacing: -0.01em;
+  }
+  .flow-head .sub { color: var(--mocha); font-size: 12.5px; }
+  .flow-head .close-btn {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--sand); border: 0; cursor: pointer;
+    display: grid; place-items: center; color: var(--charcoal);
+  }
+  .flow-head .close-btn:hover { background: var(--sand-deep); }
+
+  /* canvas — pannable, with grid background */
+  .flow-canvas {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle, rgba(148,139,130,.16) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(180deg, var(--cream) 0%, #F8F4EC 100%);
+    cursor: grab;
+  }
+  .flow-canvas.grabbing { cursor: grabbing; }
+  .flow-canvas-inner {
+    position: absolute; left: 0; top: 0;
+    width: 2400px; height: 2000px;
+    transform-origin: 0 0;
+    transition: transform 280ms cubic-bezier(.2,.8,.2,1);
+  }
+  .flow-canvas.dragging .flow-canvas-inner { transition: none; }
+
+  .flow-edges {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .flow-edge {
+    fill: none;
+    stroke: var(--mocha-soft);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .flow-edge.active { stroke: var(--sage-deep); stroke-width: 2.6; }
+  .flow-edge.dim { stroke: rgba(148,139,130,.25); }
+  .flow-edge.new { stroke-dasharray: 600; animation: drawline 700ms cubic-bezier(.2,.8,.2,1) forwards; }
+  .flow-edge-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    fill: var(--charcoal-soft);
+    paint-order: stroke;
+    stroke: var(--cream);
+    stroke-width: 4;
+  }
+
+  /* node — positioned absolutely on canvas */
+  .fnode {
+    position: absolute;
+    width: 240px;
+    background: var(--cream);
+    border: 1.5px solid rgba(148,139,130,.3);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+    transition: all 220ms ease, transform 0ms;
+    animation: nodepop 320ms cubic-bezier(.2,.8,.2,1);
+    cursor: pointer;
+  }
+  .fnode:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--charcoal-soft); }
+  .fnode.dim { opacity: 0.35; }
+  .fnode.active { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(139,157,131,.18), var(--shadow-md); }
+  .fnode.done { background: linear-gradient(180deg, #ECF2EA, var(--cream)); border-color: rgba(139,157,131,.5); }
+
+  .fnode.start {
+    width: 200px;
+    background: var(--charcoal); color: var(--cream);
+    border-color: var(--charcoal);
+    text-align: center;
+    border-radius: 999px;
+    padding: 14px 18px;
+  }
+  .fnode.start .fnode-label, .fnode.start .fnode-title { color: var(--cream); }
+  .fnode.start .fnode-label { color: rgba(253,251,247,.6); }
+
+  .fnode.decision {
+    background: linear-gradient(180deg, #F5EFFB, var(--cream));
+    border-color: rgba(184,168,216,.6);
+    width: 260px;
+  }
+  .fnode.decision::before {
+    content: '?'; position: absolute; right: 10px; top: 8px;
+    font-family: 'Fraunces', serif; font-size: 22px; color: var(--lavender);
+    line-height: 1;
+  }
+  .fnode.action {
+    background: linear-gradient(180deg, #FBEDDF, var(--cream));
+    border-color: rgba(192,120,86,.4);
+  }
+  .fnode.info { background: var(--sand); }
+  .fnode.end {
+    width: 220px;
+    background: linear-gradient(135deg, var(--sage-deep), var(--ocean));
+    color: var(--cream);
+    border-color: var(--sage-deep);
+    text-align: center;
+    border-radius: 999px;
+    padding: 14px 18px;
+  }
+  .fnode.end .fnode-label, .fnode.end .fnode-title { color: var(--cream); }
+  .fnode.end .fnode-label { color: rgba(253,251,247,.6); }
+
+  .fnode-label {
+    font-size: 10px; color: var(--mocha);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  .fnode-title { font-weight: 600; font-size: 13.5px; line-height: 1.3; letter-spacing: -0.005em; }
+  .fnode-desc { font-size: 11.5px; color: var(--charcoal-soft); margin-top: 6px; line-height: 1.45; }
+  .fnode-meta { font-size: 10.5px; color: var(--mocha); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .fnode-tick {
+    position: absolute; left: -10px; top: -10px;
+    width: 24px; height: 24px; border-radius: 999px;
+    background: var(--cream); border: 1.5px solid var(--mocha-soft);
+    display: grid; place-items: center;
+    color: transparent;
+  }
+  .fnode.done .fnode-tick { background: var(--sage-deep); color: var(--cream); border-color: var(--sage-deep); }
+
+  .fnode-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--cream);
+    border: 1px solid rgba(45,90,123,.25);
+    font-size: 11px;
+    color: var(--ocean);
+    text-decoration: none;
+  }
+  .fnode-link:hover { background: var(--ocean); color: var(--cream); border-color: var(--ocean); }
+
+  .fnode-choices {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+    padding-top: 8px; border-top: 1px dashed rgba(148,139,130,.25);
+  }
+  .fnode-choice {
+    border: 1px solid rgba(148,139,130,.25);
+    background: var(--cream);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    cursor: pointer;
+    color: var(--charcoal-soft);
+    font-family: inherit;
+    transition: all 160ms ease;
+  }
+  .fnode-choice:hover { border-color: var(--charcoal-soft); transform: scale(1.05); }
+  .fnode-choice.on {
+    background: var(--charcoal); color: var(--cream);
+    border-color: var(--charcoal);
+  }
+  .fnode-choice.yes.on { background: var(--sage-deep); border-color: var(--sage-deep); }
+  .fnode-choice.no.on { background: var(--terracotta); border-color: var(--terracotta); }
+
+  .flow-toolbar {
+    position: absolute; left: 16px; top: 16px;
+    display: flex; gap: 6px;
+    z-index: 5;
+  }
+  .flow-tool {
+    background: rgba(253,251,247,.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(148,139,130,.2);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px; cursor: pointer; color: var(--charcoal-soft);
+    font-family: inherit;
+    box-shadow: var(--shadow-sm);
+  }
+  .flow-tool:hover { color: var(--charcoal); }
+
+  .flow-minimap {
+    position: absolute; right: 16px; bottom: 16px;
+    width: 160px; height: 110px;
+    background: rgba(253,251,247,.92);
+    border: 1px solid rgba(148,139,130,.2);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    z-index: 5;
+  }
+  .flow-minimap svg { width: 100%; height: 100%; }
+  .flow-minimap .vp { fill: rgba(139,157,131,.18); stroke: var(--sage-deep); stroke-width: 1.4; }
+
+  .flow-foot {
+    padding: 12px 24px;
+    border-top: 1px solid rgba(148,139,130,.12);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: var(--cream-warm);
+  }
+  .flow-foot .sum { font-size: 13px; color: var(--charcoal-soft); }
+  .flow-foot .sum strong { font-family: 'Fraunces', serif; font-weight: 500; font-size: 16px; color: var(--charcoal); margin-right: 6px; }
+  .flow-path-trail {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 4px; font-size: 11px; color: var(--mocha);
+    flex-wrap: wrap;
+  }
+  .flow-path-trail .crumb {
+    background: var(--cream); border: 1px solid rgba(148,139,130,.2);
+    padding: 2px 8px; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  }
+  .flow-path-trail .crumb.active { background: var(--charcoal); color: var(--cream); border-color: var(--charcoal); }
+
+  /* ——— hover-link state ——— */
+  .map-pin.dim { opacity: 0.35; }
+  .tl-card.dim { opacity: 0.5; }
+  .map-pin.flash { animation: flash 1.2s ease; }
+  @keyframes flash {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+  }
+
+  /* small icon helper */
+  .ico { width: 18px; height: 18px; }
+  .ico-sm { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.5 9 21 12 13.5 14.5 12 22 10.5 14.5 3 12 10.5 9z" fill="currentColor"/></svg>
+      </div>
+      <div class="brand-name">Dest<em>ify</em></div>
+    </div>
+    <nav class="nav">
+      <a href="#" class="active">My trips</a>
+      <a href="#">Plan a trip</a>
+      <a href="#">Documents</a>
+      <a href="#">Inspiration</a>
+    </nav>
+    <div class="topbar-right">
+      <div class="pill">
+        <svg class="ico-sm" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Auto-saved · just now
+      </div>
+      <button class="pill" style="cursor:pointer;border:1px solid rgba(148,139,130,.18);background:var(--cream);">Share</button>
+      <div class="avatar">GV</div>
+    </div>
+  </header>
+
+  <section class="trip-header">
+    <div>
+      <div class="trip-meta" style="margin-bottom:8px;">
+        <span class="pill">🇺🇸 → 🇯🇵</span>
+        <span>Feb 7 → Feb 16, 2026</span>
+        <span class="dot"></span>
+        <span>9 nights</span>
+        <span class="dot"></span>
+        <span>2 travelers</span>
+      </div>
+      <h1 class="trip-title">Tokyo, <em>slowly</em>.</h1>
+      <div class="trip-meta">
+        <span>SFO ⇢ HND ⇢ KIX ⇢ HND ⇢ SFO · ANA + Shinkansen</span>
+      </div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-card-row">
+        <span class="progress-label">Trip readiness</span>
+        <span class="progress-value" id="readiness-pct">62%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="readiness-bar" style="width:62%;"></div></div>
+      <div class="progress-card-row" style="margin-top:8px;">
+        <span style="font-size:12px;color:var(--mocha);">8 of 13 checklist items complete</span>
+        <a href="#" id="open-flow-link" style="font-size:12px;color:var(--ocean);text-decoration:none;">Resume →</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="main">
+    <!-- LEFT: Timeline -->
+    <section class="panel" id="timeline-panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">Itinerary</h2>
+          <div class="panel-sub">9 days · 24 stops</div>
+        </div>
+        <div class="seg" role="tablist">
+          <button class="on" data-view="list">Timeline</button>
+          <button data-view="agenda">Agenda</button>
+        </div>
+      </div>
+      <div class="day-picker" id="day-picker"></div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <!-- CENTER: Map -->
+    <section class="panel map-panel">
+      <div class="map-head">
+        <div>
+          <h2 class="panel-title">Route map</h2>
+          <div class="panel-sub" id="map-sub">Showing all 9 days · Tokyo + Kansai</div>
+        </div>
+        <div class="seg">
+          <button class="on" data-mapview="all">All days</button>
+          <button data-mapview="day">Selected day</button>
+          <button data-mapview="flights">Flights only</button>
+        </div>
+      </div>
+      <div class="map-stage" id="map-stage">
+        <svg class="map-svg" id="map-svg" viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid slice"></svg>
+        <div class="map-overlay">
+          <div class="k">Selected</div>
+          <div class="v" id="selected-name">All stops · Japan</div>
+          <div style="font-size:11.5px;color:var(--mocha);margin-top:4px;" id="selected-sub">Hover or tap an item in the timeline to focus.</div>
+        </div>
+        <div class="map-controls">
+          <button class="map-btn" title="Zoom in">
+            <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button class="map-btn" title="Zoom out">
+            <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+          <button class="map-btn" title="Recenter">
+            <svg class="ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </button>
+        </div>
+        <div class="map-legend">
+          <div class="row"><div class="swatch" style="background:var(--ocean)"></div>Flight</div>
+          <div class="row"><div class="swatch" style="background:var(--sage);height:3px;border-radius:2px;"></div>Train / transit</div>
+          <div class="row"><div class="swatch" style="background:var(--lavender);"></div>Hotel</div>
+          <div class="row"><div class="swatch" style="background:var(--terracotta);"></div>Activity</div>
+          <div class="row" style="margin-top:4px;padding-top:6px;border-top:1px solid rgba(148,139,130,.18);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mocha);">⌖ MapCN — pending</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Stats + docs + hotels -->
+    <aside class="right-rail-wrap"><div class="right-rail">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Budget</h2>
+            <div class="panel-sub">$5,200 of $6,500 planned</div>
+          </div>
+          <div class="seg"><button class="on">USD</button><button>JPY</button></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat budget">
+            <div class="k">Remaining</div>
+            <div class="v">$1,300</div>
+            <div class="delta">↓ on track</div>
+          </div>
+          <div class="stat flight">
+            <div class="k">Flights</div>
+            <div class="v">$2,140</div>
+            <div class="delta">2 booked</div>
+          </div>
+          <div class="stat hotel">
+            <div class="k">Stays</div>
+            <div class="v">$1,820</div>
+            <div class="delta">3 of 3 set</div>
+          </div>
+          <div class="stat activity">
+            <div class="k">Activities</div>
+            <div class="v">$640</div>
+            <div class="delta">+ JR pass $400</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Pre-flight checklist</h2>
+            <div class="panel-sub">USA → Japan · Domestic re-entry covered</div>
+          </div>
+          <button id="open-flow-btn" class="pill" style="cursor:pointer;background:var(--charcoal);color:var(--cream);border:0;">Open flowchart →</button>
+        </div>
+        <div class="doc-list" id="doc-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Stays</h2>
+            <div class="panel-sub">Within budget · ranked by walk score</div>
+          </div>
+          <div class="seg"><button class="on">Picked</button><button>Alts</button></div>
+        </div>
+        <div class="hotel-list" id="hotel-list"></div>
+      </section>
+    </div></aside>
+  </main>
+
+  <!-- Flowchart canvas modal -->
+  <div class="flow-overlay" id="flow-overlay" role="dialog" aria-modal="true">
+    <div class="flow-modal">
+      <div class="flow-head">
+        <div>
+          <div style="font-size:11px;color:var(--mocha);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">Pre-flight checklist · 36 hours before SFO → HND</div>
+          <h2>Before you fly to <em style="color:var(--terracotta);font-style:italic;">Japan</em></h2>
+          <div class="sub">Answer each branch — we'll only show what applies to you. Drag to pan, scroll to zoom.</div>
+        </div>
+        <button class="close-btn" id="flow-close" aria-label="Close">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="flow-canvas" id="flow-canvas">
+        <div class="flow-toolbar">
+          <button class="flow-tool" id="flow-fit">Fit to screen</button>
+          <button class="flow-tool" id="flow-reset">Reset answers</button>
+        </div>
+        <div class="flow-canvas-inner" id="flow-inner">
+          <svg class="flow-edges" id="flow-edges" viewBox="0 0 2400 2000" preserveAspectRatio="none"></svg>
+          <div id="flow-nodes"></div>
+        </div>
+        <div class="flow-minimap"><svg id="flow-minimap-svg" viewBox="0 0 2400 2000" preserveAspectRatio="xMidYMid meet"></svg></div>
+      </div>
+      <div class="flow-foot">
+        <div>
+          <div class="sum">
+            <strong id="flow-pct">62%</strong>
+            <span id="flow-summary">8 of 13 done · 2 still need action before Feb 7</span>
+          </div>
+          <div class="flow-path-trail" id="flow-trail"></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="pill" style="cursor:pointer;background:var(--cream);border:1px solid rgba(148,139,130,.2);">Email me reminders</button>
+          <button class="pill" style="cursor:pointer;background:var(--sage-deep);color:var(--cream);border:0;">Save to Apple Wallet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="trip-data.js"></script>
+<script src="trip-app.js"></script>
+</body>
+</html>

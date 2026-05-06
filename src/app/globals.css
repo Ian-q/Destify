@@ -1,26 +1,197 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* ─── Destify palette + design tokens ────────────────────────────────── */
 @theme inline {
+  /* shadcn token plumbing */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+  --font-heading: var(--font-serif);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Destify earth-toned palette */
+  --color-sage: var(--sage);
+  --color-sage-deep: var(--sage-deep);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-soft: var(--terracotta-soft);
+  --color-ocean: var(--ocean);
+  --color-ocean-deep: var(--ocean-deep);
+  --color-sand: var(--sand);
+  --color-sand-deep: var(--sand-deep);
+  --color-lavender: var(--lavender);
+  --color-lavender-soft: var(--lavender-soft);
+  --color-mocha: var(--mocha);
+  --color-mocha-soft: var(--mocha-soft);
+  --color-cream: var(--cream);
+  --color-cream-warm: var(--cream-warm);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* shadcn neutrals — kept for components but tinted toward warm */
+  --background: oklch(0.99 0.005 80);
+  --foreground: oklch(0.22 0.01 60);
+  --card: oklch(0.99 0.004 80);
+  --card-foreground: oklch(0.22 0.01 60);
+  --popover: oklch(0.99 0.004 80);
+  --popover-foreground: oklch(0.22 0.01 60);
+  --primary: oklch(0.22 0.01 60);
+  --primary-foreground: oklch(0.99 0.005 80);
+  --secondary: oklch(0.95 0.01 70);
+  --secondary-foreground: oklch(0.22 0.01 60);
+  --muted: oklch(0.95 0.01 70);
+  --muted-foreground: oklch(0.55 0.015 60);
+  --accent: oklch(0.95 0.01 70);
+  --accent-foreground: oklch(0.22 0.01 60);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.88 0.01 70);
+  --input: oklch(0.88 0.01 70);
+  --ring: oklch(0.7 0.04 70);
+  --chart-1: oklch(0.7 0.07 130);
+  --chart-2: oklch(0.65 0.1 50);
+  --chart-3: oklch(0.5 0.08 240);
+  --chart-4: oklch(0.7 0.06 300);
+  --chart-5: oklch(0.6 0.04 50);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0.005 80);
+  --sidebar-foreground: oklch(0.22 0.01 60);
+  --sidebar-primary: oklch(0.22 0.01 60);
+  --sidebar-primary-foreground: oklch(0.99 0.005 80);
+  --sidebar-accent: oklch(0.95 0.01 70);
+  --sidebar-accent-foreground: oklch(0.22 0.01 60);
+  --sidebar-border: oklch(0.88 0.01 70);
+  --sidebar-ring: oklch(0.7 0.04 70);
+
+  /* Destify palette */
+  --sage: #8B9D83;
+  --sage-deep: #6E8068;
+  --terracotta: #C07856;
+  --terracotta-soft: #E8B89C;
+  --ocean: #2D5A7B;
+  --ocean-deep: #1F3F58;
+  --sand: #F5EDE0;
+  --sand-deep: #EBDFC8;
+  --lavender: #B8A8D8;
+  --lavender-soft: #E0D7EE;
+  --mocha: #948B82;
+  --mocha-soft: #C9C2BB;
+  --cream: #FDFBF7;
+  --cream-warm: #FAF6EE;
+  --charcoal: #2C3033;
+  --charcoal-soft: #4A4F54;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    font-feature-settings: "ss01", "cv11";
+  }
+  body {
+    color: var(--charcoal);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(184,168,216,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(192,120,86,.08), transparent 60%),
+      linear-gradient(180deg, var(--cream-warm) 0%, var(--cream) 600px);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Utility classes used across the organizer ─────────────────────── */
+@layer utilities {
+  .font-serif {
+    font-family: var(--font-serif), Georgia, serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* timeline rail dots/lines */
+.tl-line {
+  position: absolute;
+  left: 21px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--mocha-soft) 8%, var(--mocha-soft) 92%, transparent);
+}
+
+/* Leaflet — base styles imported inside the map component file. */
+/* Tweak the default tooltip to match Destify's airy badge look. */
+.leaflet-tooltip.pin-tip,
+.leaflet-tooltip.route-tip {
+  background: #FDFBF7;
+  border: 1px solid rgba(148, 139, 130, 0.25);
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(44, 48, 51, 0.04);
+  padding: 2px 8px;
+  color: #2C3033;
+  font-family: var(--font-sans), Inter, sans-serif;
+}
+.leaflet-tooltip.route-tip {
+  border-color: rgba(45, 90, 123, 0.3);
+  color: #2D5A7B;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+}
+.leaflet-tooltip-top.pin-tip:before,
+.leaflet-tooltip-top.route-tip:before {
+  border-top-color: #FDFBF7;
+}
+.leaflet-container {
+  background: transparent;
+  font-family: var(--font-sans), Inter, sans-serif;
+}
+.leaflet-control-attribution {
+  background: rgba(253, 251, 247, 0.85) !important;
+  font-size: 10px !important;
 }
