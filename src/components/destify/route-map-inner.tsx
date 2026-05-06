@@ -47,7 +47,7 @@ export default function RouteMapInner({
       center={initial.center}
       zoom={initial.zoom}
       scrollWheelZoom={true}
-      style={{ width: "100%", height: "100%", background: "transparent" }}
+      style={{ position: "absolute", inset: 0, background: "transparent" }}
       zoomControl={true}
     >
       <TileLayer

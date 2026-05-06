@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { TRIP, type FlowGraph, type FlowNode } from "@/lib/trip-data";
 import { useTripStore, activePath } from "@/lib/use-trip-store";
+import { layoutFlow, NODE_SIZE } from "@/lib/flow-layout";
 import { Check, X, ExternalLink } from "lucide-react";
 
 type NodeData = FlowNode & {
@@ -119,18 +120,15 @@ function FlowView({ flow }: { flow: FlowGraph }) {
       </DialogHeader>
 
       <div className="relative">
-        <div
-          className="absolute left-4 top-4 z-10 flex gap-1.5"
-        >
+        <div className="absolute left-4 top-4 z-10 flex gap-1.5">
           <button
+            id="flow-fit-trigger"
             className="rounded-full border px-3 py-1.5 text-xs shadow-sm backdrop-blur"
             style={{
               background: "rgba(253,251,247,.92)",
               borderColor: "rgba(148,139,130,.2)",
               color: "var(--charcoal-soft)",
             }}
-            data-flow-fit
-            id="flow-fit-trigger"
           >
             Fit to screen
           </button>
@@ -224,49 +222,73 @@ function FlowView({ flow }: { flow: FlowGraph }) {
 function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string> }) {
   const { flowDone, flowChoices } = useTripStore();
   const rf = useReactFlow();
+  const [positions, setPositions] = useState<Record<string, { x: number; y: number }> | null>(null);
+
+  // Compute layered layout once per flow (geometry doesn't change with choices —
+  // only highlighting does, which keeps the user's mental map stable).
+  useEffect(() => {
+    let cancelled = false;
+    layoutFlow(flow).then((res) => {
+      if (!cancelled) setPositions(res.positions);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [flow]);
 
   const { nodes, edges } = useMemo(() => {
-    const nodes: Node<NodeData>[] = flow.nodes.map((n) => ({
-      id: n.id,
-      type: n.kind === "start" ? "pillNode" : n.kind === "end" ? "pillNode" : "boxNode",
-      position: { x: n.x, y: n.y },
-      data: {
-        ...n,
-        flowId: flow.id,
-        isOnPath: pathSet.has(n.id),
-        isDone: !!flowDone[flow.id]?.[n.id],
-        selectedChoice: flowChoices[flow.id]?.[n.id],
-      },
-      draggable: false,
-      selectable: false,
-    }));
+    if (!positions) return { nodes: [] as Node<NodeData>[], edges: [] as Edge[] };
+
+    const nodes: Node<NodeData>[] = flow.nodes.map((n) => {
+      const size = NODE_SIZE[n.kind];
+      return {
+        id: n.id,
+        type:
+          n.kind === "decision" ? "diamondNode" :
+          n.kind === "start" || n.kind === "end" ? "pillNode" :
+          "rectNode",
+        position: positions[n.id] ?? { x: 0, y: 0 },
+        data: {
+          ...n,
+          flowId: flow.id,
+          isOnPath: pathSet.has(n.id),
+          isDone: !!flowDone[flow.id]?.[n.id],
+          selectedChoice: flowChoices[flow.id]?.[n.id],
+        },
+        width: size.width,
+        height: size.height,
+        draggable: false,
+        selectable: false,
+      };
+    });
 
     const edges: Edge[] = [];
     for (const n of flow.nodes) {
       if (n.choices) {
         for (const c of n.choices) {
           const isActive =
-            pathSet.has(n.id) && (flowChoices[flow.id]?.[n.id] ?? c.on ? c.id : c.id) === c.id && pathSet.has(c.to);
+            pathSet.has(n.id) && (flowChoices[flow.id]?.[n.id] === c.id) && pathSet.has(c.to);
           edges.push({
             id: `${n.id}-${c.id}`,
             source: n.id,
             target: c.to,
             label: c.label.split(" · ")[0],
-            type: "smoothstep",
-            animated: false,
+            type: "step",
             style: {
               stroke: isActive ? "#6E8068" : "#C9C2BB",
-              strokeWidth: isActive ? 2.6 : 2,
-              opacity: isActive ? 1 : 0.4,
+              strokeWidth: isActive ? 2.4 : 1.6,
+              opacity: isActive ? 1 : 0.55,
             },
             labelStyle: {
-              fontFamily: "var(--font-mono), monospace",
+              fontFamily: "var(--font-mono), ui-monospace, monospace",
               fontSize: 11,
-              fill: "#2C3033",
+              fontWeight: 500,
+              fill: isActive ? "#2C3033" : "#6B6964",
             },
-            labelBgStyle: { fill: "#FDFBF7", opacity: 0.9 },
+            labelBgStyle: { fill: "#FDFBF7", fillOpacity: 0.95 },
             labelBgPadding: [6, 3],
             labelBgBorderRadius: 6,
+            markerEnd: undefined,
           });
         }
       } else if (n.next) {
@@ -275,23 +297,48 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
           id: `${n.id}-${n.next}`,
           source: n.id,
           target: n.next,
-          type: "smoothstep",
+          type: "step",
           style: {
             stroke: isActive ? "#6E8068" : "#C9C2BB",
-            strokeWidth: isActive ? 2.6 : 2,
-            opacity: isActive ? 1 : 0.4,
+            strokeWidth: isActive ? 2.4 : 1.6,
+            opacity: isActive ? 1 : 0.55,
           },
         });
       }
     }
     return { nodes, edges };
-  }, [flow, pathSet, flowDone, flowChoices]);
+  }, [flow, pathSet, flowDone, flowChoices, positions]);
 
-  // Fit on first render and on demand via the toolbar button
+  // After layout lands, center near the top of the spine at a readable zoom
+  // (0.85). The Fit-to-screen toolbar button still does a true full-graph fit.
   useEffect(() => {
-    const t = setTimeout(() => rf.fitView({ padding: 0.18, duration: 320 }), 50);
+    if (!positions) return;
+    const t = setTimeout(() => {
+      const startNode = flow.nodes.find((n) => n.kind === "start");
+      const startPos = startNode ? positions[startNode.id] : null;
+      if (!startPos) {
+        rf.fitView({ padding: 0.18, duration: 320 });
+        return;
+      }
+      // Center on the start node at zoom 0.85, slightly offset down so we can
+      // see the next 2-3 nodes below.
+      rf.setViewport(
+        {
+          x: 0,
+          y: 0,
+          zoom: 0.85,
+        },
+        { duration: 0 }
+      );
+      // Then center on the start node's center
+      const size = NODE_SIZE[startNode!.kind];
+      rf.setCenter(startPos.x + size.width / 2, startPos.y + 220, {
+        zoom: 0.85,
+        duration: 320,
+      });
+    }, 50);
     return () => clearTimeout(t);
-  }, [rf, flow.id]);
+  }, [rf, flow.id, positions]);
 
   useEffect(() => {
     const handler = () => rf.fitView({ padding: 0.18, duration: 320 });
@@ -305,24 +352,25 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
       style={{
         height: "100%",
         background:
-          "radial-gradient(circle, rgba(148,139,130,.16) 1px, transparent 1px) 0 0 / 24px 24px, linear-gradient(180deg, var(--cream) 0%, #F8F4EC 100%)",
+          "radial-gradient(circle, rgba(148,139,130,.18) 1px, transparent 1px) 0 0 / 20px 20px, linear-gradient(180deg, var(--cream) 0%, #F8F4EC 100%)",
       }}
     >
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={NODE_TYPES}
-        fitView
-        fitViewOptions={{ padding: 0.18 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
         proOptions={{ hideAttribution: true }}
         minZoom={0.3}
         maxZoom={1.6}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
+        snapToGrid
+        snapGrid={[20, 20]}
         panOnDrag
       >
-        <Background gap={24} size={1} color="rgba(148,139,130,0)" />
+        <Background gap={20} size={1} color="rgba(148,139,130,0)" />
         <Controls
           showInteractive={false}
           position="bottom-left"
@@ -350,9 +398,10 @@ function PillNode({ data }: NodeProps<Node<NodeData>>) {
   const isStart = data.kind === "start";
   return (
     <div
-      className="rounded-full px-5 py-3.5 text-center shadow-sm"
+      className="grid h-full place-items-center rounded-full px-5 text-center shadow-sm"
       style={{
-        width: data.w ?? 200,
+        width: NODE_SIZE[data.kind].width,
+        height: NODE_SIZE[data.kind].height,
         background: isStart
           ? "var(--charcoal)"
           : "linear-gradient(135deg, var(--sage-deep), var(--ocean))",
@@ -361,45 +410,43 @@ function PillNode({ data }: NodeProps<Node<NodeData>>) {
         borderColor: isStart ? "var(--charcoal)" : "var(--sage-deep)",
       }}
     >
-      <div
-        className="text-[10px] uppercase tracking-[0.12em]"
-        style={{ color: "rgba(253,251,247,.6)" }}
-      >
-        {data.label}
+      <div>
+        <div
+          className="text-[10px] uppercase tracking-[0.12em]"
+          style={{ color: "rgba(253,251,247,.6)" }}
+        >
+          {data.label}
+        </div>
+        <div className="mt-1 text-[13.5px] font-semibold">{data.title}</div>
       </div>
-      <div className="mt-1 text-[13.5px] font-semibold">{data.title}</div>
-      {!isStart && <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />}
-      {isStart && <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />}
+      <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
     </div>
   );
 }
 
-function BoxNode({ data }: NodeProps<Node<NodeData>>) {
-  const { toggleFlowDone, setFlowChoice } = useTripStore();
+function RectNode({ data }: NodeProps<Node<NodeData>>) {
+  const { toggleFlowDone } = useTripStore();
+  const size = NODE_SIZE[data.kind];
 
   const bg =
-    data.kind === "decision"
-      ? "linear-gradient(180deg, #F5EFFB, var(--cream))"
-      : data.kind === "action"
-        ? "linear-gradient(180deg, #FBEDDF, var(--cream))"
-        : data.kind === "info"
-          ? "var(--sand)"
-          : "var(--cream)";
+    data.kind === "action"
+      ? "linear-gradient(180deg, #FBEDDF, var(--cream))"
+      : data.kind === "info"
+        ? "var(--sand)"
+        : "var(--cream)";
   const border =
-    data.kind === "decision"
-      ? "rgba(184,168,216,.6)"
-      : data.kind === "action"
-        ? "rgba(192,120,86,.4)"
-        : "rgba(148,139,130,.3)";
+    data.kind === "action" ? "rgba(192,120,86,.45)" : "rgba(148,139,130,.35)";
 
   return (
     <div
-      className="relative rounded-2xl border-[1.5px] px-3.5 py-3 shadow-sm transition-shadow hover:shadow-md"
+      className="relative rounded-md border-[1.5px] px-3.5 py-3 shadow-sm transition-shadow hover:shadow-md"
       style={{
-        width: data.w ?? 240,
+        width: size.width,
+        height: size.height,
         background: bg,
-        borderColor: data.isDone ? "rgba(139,157,131,.5)" : border,
-        opacity: data.isOnPath ? 1 : 0.35,
+        borderColor: data.isDone ? "rgba(139,157,131,.55)" : border,
+        opacity: data.isOnPath ? 1 : 0.32,
       }}
     >
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
@@ -410,7 +457,7 @@ function BoxNode({ data }: NodeProps<Node<NodeData>>) {
           e.stopPropagation();
           toggleFlowDone(data.flowId, data.id);
         }}
-        className="absolute -left-2.5 -top-2.5 grid h-6 w-6 place-items-center rounded-full border-[1.5px] bg-cream transition-colors"
+        className="absolute -left-2.5 -top-2.5 grid h-6 w-6 place-items-center rounded-full border-[1.5px] transition-colors"
         style={{
           background: data.isDone ? "var(--sage-deep)" : "var(--cream)",
           color: data.isDone ? "var(--cream)" : "transparent",
@@ -420,15 +467,6 @@ function BoxNode({ data }: NodeProps<Node<NodeData>>) {
       >
         <Check className="h-3.5 w-3.5" />
       </button>
-
-      {data.kind === "decision" && (
-        <div
-          className="absolute right-2.5 top-1.5 font-serif text-[22px] leading-none"
-          style={{ color: "var(--lavender)" }}
-        >
-          ?
-        </div>
-      )}
 
       <div
         className="text-[10px] uppercase tracking-[0.12em]"
@@ -441,7 +479,7 @@ function BoxNode({ data }: NodeProps<Node<NodeData>>) {
       </div>
       {data.desc && (
         <div
-          className="mt-1.5 text-[11.5px] leading-snug"
+          className="mt-1.5 line-clamp-3 text-[11.5px] leading-snug"
           style={{ color: "var(--charcoal-soft)" }}
         >
           {data.desc}
@@ -461,7 +499,7 @@ function BoxNode({ data }: NodeProps<Node<NodeData>>) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="mt-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px]"
+          className="absolute bottom-2.5 left-3.5 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px]"
           style={{
             background: "var(--cream)",
             borderColor: "rgba(45,90,123,.25)",
@@ -471,40 +509,104 @@ function BoxNode({ data }: NodeProps<Node<NodeData>>) {
           {data.link.label} <ExternalLink className="h-3 w-3" />
         </a>
       )}
-      {data.choices && (
+    </div>
+  );
+}
+
+function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
+  const { setFlowChoice } = useTripStore();
+  const size = NODE_SIZE[data.kind];
+  const w = size.width;
+  const h = size.height;
+
+  // Diamond geometry — text fits inside the inscribed rectangle, which is
+  // ~58% of the bounding box width and height.
+  const innerW = Math.round(w * 0.58);
+  const innerH = Math.round(h * 0.58);
+  const onPath = data.isOnPath;
+
+  return (
+    <div className="relative" style={{ width: w, height: h }}>
+      <Handle type="target" position={Position.Top} style={{ opacity: 0, top: 0 }} />
+      <Handle type="source" position={Position.Bottom} style={{ opacity: 0, bottom: 0 }} />
+
+      <svg
+        width={w}
+        height={h}
+        viewBox={`0 0 ${w} ${h}`}
+        className="absolute inset-0"
+        style={{ opacity: onPath ? 1 : 0.32 }}
+      >
+        <defs>
+          <linearGradient id={`dia-${data.id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#F5EFFB" />
+            <stop offset="1" stopColor="#FDFBF7" />
+          </linearGradient>
+        </defs>
+        <polygon
+          points={`${w / 2},2 ${w - 2},${h / 2} ${w / 2},${h - 2} 2,${h / 2}`}
+          fill={`url(#dia-${data.id})`}
+          stroke={data.isDone ? "rgba(139,157,131,.55)" : "rgba(184,168,216,.7)"}
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      <div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+        style={{ width: innerW, height: innerH, opacity: onPath ? 1 : 0.32 }}
+      >
         <div
-          className="mt-2.5 flex flex-wrap gap-1.5 border-t border-dashed pt-2"
-          style={{ borderColor: "rgba(148,139,130,.25)" }}
+          className="text-[10px] uppercase tracking-[0.12em]"
+          style={{ color: "var(--mocha)" }}
         >
-          {data.choices.map((c) => {
-            const isOn = data.selectedChoice === c.id;
-            const yn = c.id.startsWith("yes") ? "yes" : c.id === "no" ? "no" : "";
-            const onBg = yn === "yes" ? "var(--sage-deep)" : yn === "no" ? "var(--terracotta)" : "var(--charcoal)";
-            return (
-              <button
-                key={c.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setFlowChoice(data.flowId, data.id, c.id);
-                }}
-                className="rounded-full border px-2.5 py-1 text-[11.5px] transition-transform hover:scale-105"
-                style={{
-                  background: isOn ? onBg : "var(--cream)",
-                  color: isOn ? "var(--cream)" : "var(--charcoal-soft)",
-                  borderColor: isOn ? onBg : "rgba(148,139,130,.25)",
-                }}
-              >
-                {c.label}
-              </button>
-            );
-          })}
+          {data.label}
         </div>
-      )}
+        <div className="mt-0.5 text-[13px] font-semibold leading-tight tracking-tight">
+          {data.title}
+        </div>
+        {data.desc && (
+          <div
+            className="mt-1 line-clamp-2 text-[10.5px] leading-snug"
+            style={{ color: "var(--charcoal-soft)" }}
+          >
+            {data.desc}
+          </div>
+        )}
+        {data.choices && (
+          <div className="mt-1.5 flex flex-wrap justify-center gap-1.5">
+            {data.choices.map((c) => {
+              const isOn = data.selectedChoice === c.id;
+              const yn = c.id.startsWith("yes") ? "yes" : c.id === "no" ? "no" : "";
+              const onBg =
+                yn === "yes" ? "var(--sage-deep)" : yn === "no" ? "var(--terracotta)" : "var(--charcoal)";
+              return (
+                <button
+                  key={c.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFlowChoice(data.flowId, data.id, c.id);
+                  }}
+                  className="rounded-full border px-2 py-0.5 text-[10.5px] transition-transform hover:scale-105"
+                  style={{
+                    background: isOn ? onBg : "var(--cream)",
+                    color: isOn ? "var(--cream)" : "var(--charcoal-soft)",
+                    borderColor: isOn ? onBg : "rgba(148,139,130,.3)",
+                  }}
+                >
+                  {c.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 const NODE_TYPES: NodeTypes = {
   pillNode: PillNode,
-  boxNode: BoxNode,
+  rectNode: RectNode,
+  diamondNode: DiamondNode,
 };
