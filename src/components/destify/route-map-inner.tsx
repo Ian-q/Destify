@@ -10,6 +10,7 @@ import {
   CircleMarker,
   Polyline,
   Tooltip,
+  ZoomControl,
   useMap,
 } from "react-leaflet";
 import { TRIP, type Place } from "@/lib/trip-data";
@@ -48,8 +49,9 @@ export default function RouteMapInner({
       zoom={initial.zoom}
       scrollWheelZoom={true}
       style={{ position: "absolute", inset: 0, background: "transparent" }}
-      zoomControl={true}
+      zoomControl={false}
     >
+      <ZoomControl position="topright" />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &middot; &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"

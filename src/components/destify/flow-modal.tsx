@@ -262,16 +262,35 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
       };
     });
 
+    // Pick which side of a decision diamond an edge exits from based on where
+    // elk placed the target. Detours into a side column exit the matching tip
+    // (Mermaid/D2-style); the spine continuation exits the bottom.
+    const sideOf = (sourceId: string, targetId: string): "left" | "right" | "bottom" => {
+      const s = positions[sourceId];
+      const t = positions[targetId];
+      const sNode = flow.nodes.find((n) => n.id === sourceId);
+      const tNode = flow.nodes.find((n) => n.id === targetId);
+      if (!s || !t || !sNode || !tNode) return "bottom";
+      const sCenter = s.x + NODE_SIZE[sNode.kind].width / 2;
+      const tCenter = t.x + NODE_SIZE[tNode.kind].width / 2;
+      const delta = tCenter - sCenter;
+      if (delta < -40) return "left";
+      if (delta > 40) return "right";
+      return "bottom";
+    };
+
     const edges: Edge[] = [];
     for (const n of flow.nodes) {
       if (n.choices) {
         for (const c of n.choices) {
           const isActive =
             pathSet.has(n.id) && (flowChoices[flow.id]?.[n.id] === c.id) && pathSet.has(c.to);
+          const sourceHandle = n.kind === "decision" ? sideOf(n.id, c.to) : undefined;
           edges.push({
             id: `${n.id}-${c.id}`,
             source: n.id,
             target: c.to,
+            sourceHandle,
             label: c.label.split(" · ")[0],
             type: "step",
             style: {
@@ -528,7 +547,9 @@ function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
   return (
     <div className="relative" style={{ width: w, height: h }}>
       <Handle type="target" position={Position.Top} style={{ opacity: 0, top: 0 }} />
-      <Handle type="source" position={Position.Bottom} style={{ opacity: 0, bottom: 0 }} />
+      <Handle id="bottom" type="source" position={Position.Bottom} style={{ opacity: 0, bottom: 0 }} />
+      <Handle id="left" type="source" position={Position.Left} style={{ opacity: 0, left: 0 }} />
+      <Handle id="right" type="source" position={Position.Right} style={{ opacity: 0, right: 0 }} />
 
       <svg
         width={w}
