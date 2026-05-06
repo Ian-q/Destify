@@ -69,8 +69,7 @@ export function RouteMap() {
         className="relative flex-1 overflow-hidden border-t"
         style={{
           borderColor: "rgba(148,139,130,.10)",
-          background:
-            "linear-gradient(180deg, #EAF1F7 0%, #F1E9DA 60%, #F5EDE0 100%)",
+          background: "var(--sand)",
         }}
       >
         <MapInner
@@ -83,8 +82,8 @@ export function RouteMap() {
         <div
           className="absolute left-4 top-4 max-w-[260px] rounded-xl border px-3 py-2.5 text-xs shadow-sm backdrop-blur"
           style={{
-            background: "rgba(253,251,247,.92)",
-            borderColor: "rgba(148,139,130,.16)",
+            background: "var(--cream)",
+            borderColor: "rgba(148,139,130,.18)",
           }}
         >
           <div
@@ -104,8 +103,8 @@ export function RouteMap() {
         <div
           className="absolute bottom-4 right-4 grid gap-1.5 rounded-xl border px-3 py-2.5 text-[11.5px] shadow-sm backdrop-blur"
           style={{
-            background: "rgba(253,251,247,.92)",
-            borderColor: "rgba(148,139,130,.16)",
+            background: "var(--cream)",
+            borderColor: "rgba(148,139,130,.18)",
           }}
         >
           <Legend swatch="var(--ocean)" label="Flight" />

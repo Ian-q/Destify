@@ -9,8 +9,12 @@ import {
   Controls,
   Handle,
   Position,
+  BaseEdge,
+  EdgeLabelRenderer,
   type Node,
   type Edge,
+  type EdgeProps,
+  type EdgeTypes,
   type NodeTypes,
   type NodeProps,
   useReactFlow,
@@ -292,11 +296,12 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
             target: c.to,
             sourceHandle,
             label: c.label.split(" · ")[0],
-            type: "step",
+            type: "ortho",
             style: {
               stroke: isActive ? "#6E8068" : "#C9C2BB",
               strokeWidth: isActive ? 2.4 : 1.6,
               opacity: isActive ? 1 : 0.55,
+              fill: "none",
             },
             labelStyle: {
               fontFamily: "var(--font-mono), ui-monospace, monospace",
@@ -378,6 +383,7 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
         nodes={nodes}
         edges={edges}
         nodeTypes={NODE_TYPES}
+        edgeTypes={EDGE_TYPES}
         defaultViewport={{ x: 0, y: 0, zoom: 0.85 }}
         proOptions={{ hideAttribution: true }}
         minZoom={0.3}
@@ -630,4 +636,75 @@ const NODE_TYPES: NodeTypes = {
   pillNode: PillNode,
   rectNode: RectNode,
   diamondNode: DiamondNode,
+};
+
+// ─── Custom orthogonal edge ───────────────────────────────────────────
+// React Flow's default `step` edge picks its bend at the source-target
+// midpoint, which produces extra zigzags when the source exits a side
+// handle. This edge routes:
+//   • side exit → 1 bend at (targetX, sourceY): horizontal then vertical
+//   • bottom exit, target column-shifted → 2 bends: down half, across, down
+//   • bottom exit, target directly below → straight line
+type OrthoEdgeData = { isActive?: boolean };
+
+function OrthoEdge({
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  label,
+  style,
+  labelStyle,
+}: EdgeProps<Edge<OrthoEdgeData>>) {
+  let path: string;
+  let labelX: number;
+  let labelY: number;
+
+  if (sourcePosition === Position.Left || sourcePosition === Position.Right) {
+    // Side exit: out horizontally, then a single 90° bend down to the target.
+    path = `M ${sourceX} ${sourceY} L ${targetX} ${sourceY} L ${targetX} ${targetY}`;
+    labelX = (sourceX + targetX) / 2;
+    labelY = sourceY;
+  } else {
+    // Bottom exit (default).
+    if (Math.abs(sourceX - targetX) < 1) {
+      path = `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+      labelX = (sourceX + targetX) / 2;
+      labelY = (sourceY + targetY) / 2;
+    } else {
+      const midY = (sourceY + targetY) / 2;
+      path = `M ${sourceX} ${sourceY} L ${sourceX} ${midY} L ${targetX} ${midY} L ${targetX} ${targetY}`;
+      labelX = (sourceX + targetX) / 2;
+      labelY = midY;
+    }
+  }
+
+  return (
+    <>
+      <BaseEdge path={path} style={style} />
+      {label ? (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: "absolute",
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              background: "#FDFBF7",
+              padding: "2px 6px",
+              borderRadius: 6,
+              pointerEvents: "none",
+              ...labelStyle,
+            }}
+            className="font-mono"
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      ) : null}
+    </>
+  );
+}
+
+const EDGE_TYPES: EdgeTypes = {
+  ortho: OrthoEdge,
 };
