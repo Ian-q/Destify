@@ -218,16 +218,8 @@ export default function LoginPage() {
           ))}
 
           {/* Logo */}
-          <Link href="/" style={{ textDecoration: "none", position: "relative", zIndex: 1 }}>
-            <span style={{
-              fontFamily: "var(--font-serif), Georgia, serif",
-              fontSize: 21,
-              fontWeight: 500,
-              letterSpacing: "-0.025em",
-              color: "rgba(253,251,247,.9)",
-            }}>
-              Dest<em style={{ fontStyle: "italic", color: "#8B9D83" }}>ify</em>
-            </span>
+          <Link href="/" style={{ display: "flex", lineHeight: 0, position: "relative", zIndex: 1 }}>
+            <img src="/logo.png" alt="Destify" style={{ width: 32, height: 32, borderRadius: 9 }} />
           </Link>
 
           {/* Central quote */}

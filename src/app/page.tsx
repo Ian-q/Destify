@@ -11,16 +11,59 @@ import { ArrowRight, Clock3, CheckSquare2, Map, Sparkles } from "lucide-react";
 // 4 = hero content revealed
 type Phase = 0 | 1 | 2 | 3 | 4;
 
+const CITIES = [
+  {
+    name: "Tokyo", country: "Japan", italic: false,
+    img: "photo-1540959733332-eab4deabeeaf",
+    fallback: "#1a1f2e",
+  },
+  {
+    name: "Paris", country: "France", italic: true,
+    img: "photo-1502602898657-3e91760cbb34",
+    fallback: "#2e2416",
+  },
+  {
+    name: "Bali", country: "Indonesia", italic: false,
+    img: "photo-1537996194471-e657df975ab4",
+    fallback: "#1a2e1e",
+  },
+  {
+    name: "New York", country: "USA", italic: true,
+    img: "photo-1496442226666-8d4d0e62e6e9",
+    fallback: "#1a1a24",
+  },
+  {
+    name: "Santorini", country: "Greece", italic: false,
+    img: "photo-1570077188670-e3a8d69ac5ff",
+    fallback: "#1a2535",
+  },
+];
+
+const IMG_DURATION = 900; // ms each city is shown
+const IMGS_END = IMG_DURATION * CITIES.length; // 4500ms
+
 export default function LandingPage() {
   const [phase, setPhase] = useState<Phase>(0);
+  const [imgIdx, setImgIdx]     = useState(0);
+  const [imgVisible, setImgVisible] = useState(true);
 
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 350),
-      setTimeout(() => setPhase(2), 2500),
-      setTimeout(() => setPhase(3), 3200),
-      setTimeout(() => setPhase(4), 4300),
-    ];
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    // Cycle through city images
+    CITIES.forEach((_, i) => {
+      timers.push(setTimeout(() => setImgIdx(i), i * IMG_DURATION));
+    });
+
+    // Fade out images, reveal cream background
+    timers.push(setTimeout(() => setImgVisible(false), IMGS_END + 200));
+
+    // Main animation phases
+    timers.push(setTimeout(() => setPhase(1), IMGS_END + 900));
+    timers.push(setTimeout(() => setPhase(2), IMGS_END + 3200));
+    timers.push(setTimeout(() => setPhase(3), IMGS_END + 3900));
+    timers.push(setTimeout(() => setPhase(4), IMGS_END + 5000));
+
     return () => timers.forEach(clearTimeout);
   }, []);
 
@@ -64,15 +107,13 @@ export default function LandingPage() {
           pointerEvents: phase >= 4 ? "auto" : "none",
         }}
       >
-        <div
-          style={{
-            fontFamily: "var(--font-serif), Georgia, serif",
-            fontSize: 18,
-            fontWeight: 500,
-            letterSpacing: "-0.02em",
-            color: "var(--charcoal)",
-          }}
-        >
+        <div style={{
+          fontFamily: "var(--font-serif), Georgia, serif",
+          fontSize: 18,
+          fontWeight: 500,
+          letterSpacing: "-0.02em",
+          color: "var(--charcoal)",
+        }}>
           Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -132,15 +173,97 @@ export default function LandingPage() {
             "linear-gradient(180deg, var(--cream-warm) 0%, var(--cream) 100%)",
         }}
       >
+        {/* ── City photo slideshow ─────────────────────────────── */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            opacity: imgVisible ? 1 : 0,
+            transition: "opacity 0.95s ease",
+            pointerEvents: "none",
+          }}
+        >
+          {/* City background images */}
+          {CITIES.map((city, i) => (
+            <div
+              key={city.name}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `url(https://images.unsplash.com/${city.img}?w=1920&q=80&auto=format&fit=crop)`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundColor: city.fallback,
+                opacity: imgIdx === i ? 1 : 0,
+                transition: "opacity 0.75s ease",
+              }}
+            />
+          ))}
+
+          {/* Dark gradient overlay — lighter top, heavier bottom */}
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,.18) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,.62) 100%)",
+          }} />
+
+          {/* City name + country labels */}
+          {CITIES.map((city, i) => (
+            <div
+              key={city.name + "_label"}
+              style={{
+                position: "absolute",
+                bottom: "18%",
+                left: 0,
+                right: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                opacity: imgIdx === i ? 1 : 0,
+                transform: imgIdx === i ? "translateY(0)" : "translateY(18px)",
+                transition: "opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s",
+              }}
+            >
+              <div style={{
+                fontFamily: "var(--font-serif), Georgia, serif",
+                fontSize: "clamp(48px, 7.5vw, 106px)",
+                fontWeight: 500,
+                letterSpacing: "-0.032em",
+                lineHeight: 1,
+                color: "white",
+                fontStyle: city.italic ? "italic" : "normal",
+                textShadow: "0 2px 24px rgba(0,0,0,.28)",
+                whiteSpace: "nowrap",
+              }}>
+                {city.name}
+              </div>
+              <div style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 11,
+                color: "rgba(255,255,255,.52)",
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+              }}>
+                {city.country}
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Animation stage */}
         <div
           style={{
             position: "relative",
+            zIndex: 2,
             width: "100%",
             maxWidth: 960,
             height: 220,
           }}
         >
+
           {/* "Destinations, simplified" — phase 1 & 2 */}
           <div
             style={{
@@ -238,8 +361,7 @@ export default function LandingPage() {
                 pointerEvents: "none",
               }}
             >
-              Dest
-              <em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
+              Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
             </div>
           )}
         </div>
@@ -697,3 +819,4 @@ function StepRow({
     </div>
   );
 }
+
