@@ -321,11 +321,12 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
           id: `${n.id}-${n.next}`,
           source: n.id,
           target: n.next,
-          type: "step",
+          type: "ortho",
           style: {
             stroke: isActive ? "#6E8068" : "#C9C2BB",
             strokeWidth: isActive ? 2.4 : 1.6,
             opacity: isActive ? 1 : 0.55,
+            fill: "none",
           },
         });
       }
