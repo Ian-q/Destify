@@ -75,27 +75,45 @@ export default function LandingPage() {
         >
           Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
         </div>
-        <Link
-          href="/organizer"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            background: "linear-gradient(135deg, var(--sage) 0%, var(--ocean) 100%)",
-            color: "var(--cream)",
-            fontFamily: "var(--font-sans)",
-            fontSize: 13,
-            fontWeight: 500,
-            padding: "8px 18px",
-            borderRadius: 999,
-            textDecoration: "none",
-            letterSpacing: "-0.01em",
-            boxShadow: "0 2px 12px rgba(45,90,123,.18)",
-          }}
-        >
-          Open app
-          <ArrowRight size={12} />
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Link
+            href="/login"
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "var(--mocha)",
+              textDecoration: "none",
+              padding: "8px 14px",
+              borderRadius: 999,
+              letterSpacing: "-0.01em",
+              transition: "color 0.2s ease",
+            }}
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/login"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              background: "linear-gradient(135deg, var(--sage) 0%, var(--ocean) 100%)",
+              color: "var(--cream)",
+              fontFamily: "var(--font-sans)",
+              fontSize: 13,
+              fontWeight: 500,
+              padding: "8px 18px",
+              borderRadius: 999,
+              textDecoration: "none",
+              letterSpacing: "-0.01em",
+              boxShadow: "0 2px 12px rgba(45,90,123,.18)",
+            }}
+          >
+            Sign up
+            <ArrowRight size={12} />
+          </Link>
+        </div>
       </nav>
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
