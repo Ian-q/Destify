@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock3, CheckSquare2, Map, Sparkles, Plane } from "lucide-react";
+import { Footer } from "@/components/destify/footer";
+import { AppPreview } from "@/components/destify/app-preview";
 
 // 0 = initial hidden
 // 1 = words visible
@@ -577,6 +579,8 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <AppPreview />
+
       {/* ── How it works — Flight Route ───────────────────────────────── */}
       <section style={{ padding: "80px 24px 104px" }}>
         <div style={{ maxWidth: 660, margin: "0 auto" }}>
@@ -696,6 +700,8 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
+
+      <Footer />
     </>
   );
 }
