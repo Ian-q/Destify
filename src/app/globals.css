@@ -133,10 +133,7 @@
   }
   body {
     color: var(--charcoal);
-    background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(184,168,216,.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 20%, rgba(192,120,86,.08), transparent 60%),
-      linear-gradient(180deg, var(--cream-warm) 0%, var(--cream) 600px);
+    background-color: var(--cream-warm);
   }
 }
 
