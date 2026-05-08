@@ -71,9 +71,9 @@ export default function LandingPage() {
     <>
       <style>{`
         @keyframes destify-bloom {
-          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.42) blur(6px); }
-          55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04) blur(0px); }
-          100% { opacity: 1; transform: translate(-50%, -50%) scale(1)    blur(0px); }
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.42); filter: blur(6px); }
+          55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); filter: blur(0px); }
+          100% { opacity: 1; transform: translate(-50%, -50%) scale(1);    filter: blur(0px); }
         }
         @keyframes ring-out {
           0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
