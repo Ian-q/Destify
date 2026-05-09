@@ -63,44 +63,44 @@ export function TripHeader() {
         </div>
       </div>
 
-      <div
-        className="min-w-[280px] rounded-xl border bg-cream px-4 py-3.5 shadow-sm"
-        style={{ borderColor: "rgba(148,139,130,.14)" }}
+      <button
+        onClick={() => openFlow("preflight-jp")}
+        className="group flex min-w-[300px] items-center gap-4 rounded-2xl border px-3.5 py-3 text-left transition-shadow hover:shadow-[var(--shadow-sm)]"
+        style={{
+          background: "linear-gradient(135deg, var(--sand) 0%, #F5EDE0 100%)",
+          borderColor: "rgba(148,139,130,.14)",
+        }}
       >
-        <div className="flex items-baseline justify-between">
-          <span
-            className="text-[12px] uppercase tracking-[0.08em]"
+        <div className="min-w-0 flex-1">
+          <div
+            className="text-[10.5px] font-medium uppercase tracking-[0.1em]"
             style={{ color: "var(--mocha)" }}
           >
             Trip readiness
-          </span>
-          <span className="font-serif text-[22px] font-medium">{pct}%</span>
+          </div>
+          <div
+            className="mt-2 h-1.5 overflow-hidden rounded-full"
+            style={{ background: "rgba(148,139,130,.18)" }}
+          >
+            <div
+              className="h-full rounded-full transition-[width] duration-400"
+              style={{
+                width: `${pct}%`,
+                background: "linear-gradient(90deg, var(--sage), var(--sage-deep))",
+              }}
+            />
+          </div>
+          <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--mocha)" }}>
+            {doneCount} of {totalCount} checklist items complete
+          </div>
         </div>
         <div
-          className="mt-2.5 h-1.5 overflow-hidden rounded-full"
-          style={{ background: "var(--sand)" }}
+          className="font-serif text-[26px] font-medium leading-none"
+          style={{ letterSpacing: "-0.02em" }}
         >
-          <div
-            className="h-full rounded-full transition-[width] duration-400"
-            style={{
-              width: `${pct}%`,
-              background: "linear-gradient(90deg, var(--sage), var(--sage-deep))",
-            }}
-          />
+          {pct}%
         </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-xs" style={{ color: "var(--mocha)" }}>
-            {doneCount} of {totalCount} checklist items complete
-          </span>
-          <button
-            onClick={() => openFlow("preflight-jp")}
-            className="text-xs"
-            style={{ color: "var(--ocean)" }}
-          >
-            Resume →
-          </button>
-        </div>
-      </div>
+      </button>
     </section>
   );
 }

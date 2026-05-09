@@ -2,7 +2,7 @@
 
 import { TRIP, type DocItem, type Hotel } from "@/lib/trip-data";
 import { useTripStore } from "@/lib/use-trip-store";
-import { Check, AlertTriangle, ArrowRight } from "lucide-react";
+import { Check, AlertTriangle, ArrowRight, ExternalLink } from "lucide-react";
 
 export function RightRail() {
   return (
@@ -143,36 +143,44 @@ function DocRow({
       ? { background: "var(--terracotta)", color: "var(--cream)", borderColor: "var(--terracotta)" }
       : { background: "var(--sand)", color: "transparent", borderColor: "rgba(148,139,130,.2)" };
   return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-2.5 rounded-2xl border bg-cream px-3 py-2.5 text-left transition-colors hover:[background:#FAF6EE]"
+    <div
+      className="flex items-stretch overflow-hidden rounded-2xl border bg-cream"
       style={{ borderColor: "rgba(148,139,130,.14)" }}
     >
-      <div
-        className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-md border"
-        style={tickStyle}
+      <button
+        onClick={onClick}
+        className="flex flex-1 items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:[background:var(--cream-warm)]"
       >
-        {isDone ? <Check className="h-3.5 w-3.5" /> : isWarn ? <AlertTriangle className="h-3 w-3" /> : null}
-      </div>
-      <div className="flex-1">
-        <div className="text-[13px] font-medium">{doc.title}</div>
-        <div className="mt-0.5 text-[11.5px]" style={{ color: "var(--mocha)" }}>
-          {doc.sub}
+        <div
+          className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-md border"
+          style={tickStyle}
+        >
+          {isDone ? <Check className="h-3.5 w-3.5" /> : isWarn ? <AlertTriangle className="h-3 w-3" /> : null}
         </div>
-      </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-medium">{doc.title}</div>
+          <div className="mt-0.5 text-[11.5px]" style={{ color: "var(--mocha)" }}>
+            {doc.sub}
+          </div>
+        </div>
+      </button>
       {doc.link ? (
         <a
           href={doc.link.href}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="text-[11px]"
-          style={{ color: "var(--ocean)" }}
+          className="group flex shrink-0 items-center gap-1.5 border-l px-3.5 text-[11.5px] font-medium transition-colors hover:bg-[var(--ocean)] hover:text-[var(--cream)]"
+          style={{
+            background: "#ECE4D6",
+            borderLeftColor: "rgba(148,139,130,.16)",
+            color: "var(--ocean)",
+          }}
         >
-          {doc.link.label} ↗
+          <span>{doc.link.label}</span>
+          <ExternalLink className="h-3 w-3 transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
         </a>
       ) : null}
-    </button>
+    </div>
   );
 }
 

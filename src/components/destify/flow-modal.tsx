@@ -428,22 +428,20 @@ function PillNode({ data }: NodeProps<Node<NodeData>>) {
       style={{
         width: NODE_SIZE[data.kind].width,
         height: NODE_SIZE[data.kind].height,
-        background: isStart
-          ? "var(--charcoal)"
-          : "linear-gradient(135deg, var(--sage-deep), var(--ocean))",
-        color: "var(--cream)",
+        background: isStart ? "var(--cream)" : "var(--grad-pill)",
+        color: isStart ? "var(--charcoal)" : "var(--cream)",
         border: "1.5px solid",
-        borderColor: isStart ? "var(--charcoal)" : "var(--sage-deep)",
+        borderColor: isStart ? "rgba(139,157,131,.7)" : "var(--sage-deep)",
       }}
     >
       <div>
         <div
-          className="text-[10px] uppercase tracking-[0.12em]"
-          style={{ color: "rgba(253,251,247,.6)" }}
+          className="text-[10px] font-semibold uppercase tracking-[0.14em]"
+          style={{ color: isStart ? "var(--sage-deep)" : "rgba(253,251,247,.6)" }}
         >
           {data.label}
         </div>
-        <div className="mt-1 text-[13.5px] font-semibold">{data.title}</div>
+        <div className="mt-1 text-[13.5px] font-semibold tracking-tight">{data.title}</div>
       </div>
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
@@ -545,24 +543,40 @@ function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
   const w = size.width;
   const h = size.height;
 
-  // Diamond geometry — text fits inside the inscribed rectangle, which is
-  // ~58% of the bounding box width and height.
-  const innerW = Math.round(w * 0.58);
-  const innerH = Math.round(h * 0.58);
+  // Diamond occupies the top ~65% of the bbox; the question floats below.
+  // This matches the design intent of "Decision in the center of the diamond,
+  // with the question floating underneath it" instead of squishing copy inside.
+  const diamondH = Math.round(h * 0.65);
+  const diamondMidY = diamondH / 2;
   const onPath = data.isOnPath;
 
   return (
     <div className="relative" style={{ width: w, height: h }}>
       <Handle type="target" position={Position.Top} style={{ opacity: 0, top: 0 }} />
-      <Handle id="bottom" type="source" position={Position.Bottom} style={{ opacity: 0, bottom: 0 }} />
-      <Handle id="left" type="source" position={Position.Left} style={{ opacity: 0, left: 0 }} />
-      <Handle id="right" type="source" position={Position.Right} style={{ opacity: 0, right: 0 }} />
+      <Handle
+        id="bottom"
+        type="source"
+        position={Position.Bottom}
+        style={{ opacity: 0, top: diamondH, bottom: "auto" }}
+      />
+      <Handle
+        id="left"
+        type="source"
+        position={Position.Left}
+        style={{ opacity: 0, top: diamondMidY }}
+      />
+      <Handle
+        id="right"
+        type="source"
+        position={Position.Right}
+        style={{ opacity: 0, top: diamondMidY }}
+      />
 
       <svg
         width={w}
-        height={h}
-        viewBox={`0 0 ${w} ${h}`}
-        className="absolute inset-0"
+        height={diamondH}
+        viewBox={`0 0 ${w} ${diamondH}`}
+        className="absolute left-0 top-0"
         style={{ opacity: onPath ? 1 : 0.32 }}
       >
         <defs>
@@ -572,7 +586,7 @@ function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
           </linearGradient>
         </defs>
         <polygon
-          points={`${w / 2},2 ${w - 2},${h / 2} ${w / 2},${h - 2} 2,${h / 2}`}
+          points={`${w / 2},2 ${w - 2},${diamondMidY} ${w / 2},${diamondH - 2} 2,${diamondMidY}`}
           fill={`url(#dia-${data.id})`}
           stroke={data.isDone ? "rgba(139,157,131,.55)" : "rgba(184,168,216,.7)"}
           strokeWidth="1.8"
@@ -581,26 +595,27 @@ function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
       </svg>
 
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
-        style={{ width: innerW, height: innerH, opacity: onPath ? 1 : 0.32 }}
+        className="absolute left-0 right-0 grid place-items-center"
+        style={{ top: 0, height: diamondH, opacity: onPath ? 1 : 0.32 }}
+      >
+        <span
+          className="font-mono text-[10px] font-semibold uppercase"
+          style={{ color: "#5C4B85", letterSpacing: "0.16em" }}
+        >
+          Decision
+        </span>
+      </div>
+
+      <div
+        className="absolute left-0 right-0 px-3 text-center"
+        style={{ top: diamondH + 8, opacity: onPath ? 1 : 0.32 }}
       >
         <div
-          className="text-[10px] uppercase tracking-[0.12em]"
-          style={{ color: "var(--mocha)" }}
+          className="font-serif text-[14px] font-medium leading-snug"
+          style={{ letterSpacing: "-0.01em" }}
         >
-          {data.label}
-        </div>
-        <div className="mt-0.5 text-[13px] font-semibold leading-tight tracking-tight">
           {data.title}
         </div>
-        {data.desc && (
-          <div
-            className="mt-1 line-clamp-2 text-[10.5px] leading-snug"
-            style={{ color: "var(--charcoal-soft)" }}
-          >
-            {data.desc}
-          </div>
-        )}
         {data.choices && (
           <div className="mt-1.5 flex flex-wrap justify-center gap-1.5">
             {data.choices.map((c) => {

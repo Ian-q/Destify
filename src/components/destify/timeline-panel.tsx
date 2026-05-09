@@ -291,9 +291,9 @@ function CheckpointCard({ item }: { item: ItineraryItem }) {
   return (
     <button
       onClick={() => item.flowId && openFlow(item.flowId)}
-      className="relative mb-2 cursor-pointer overflow-hidden rounded-xl border p-3.5 text-left transition-shadow hover:shadow-[0_8px_24px_rgba(44,48,51,.2)]"
+      className="relative mb-2 cursor-pointer overflow-hidden rounded-xl border p-3.5 text-left shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-lg)]"
       style={{
-        background: "linear-gradient(135deg, #2C3033 0%, #3A4148 100%)",
+        background: "var(--grad-checkpoint)",
         color: "var(--cream)",
         borderColor: "var(--charcoal)",
       }}

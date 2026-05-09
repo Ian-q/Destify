@@ -121,6 +121,56 @@
   --cream-warm: #FAF6EE;
   --charcoal: #2C3033;
   --charcoal-soft: #4A4F54;
+
+  /* Semantic state colors */
+  --success: var(--sage-deep);
+  --success-soft: #E8EFE6;
+  --warning: var(--terracotta);
+  --warning-soft: #FBEDDF;
+  --info: var(--ocean);
+  --info-soft: #DDE9F2;
+  --identity: var(--lavender);
+  --identity-soft: var(--lavender-soft);
+
+  /* Shadows — charcoal at low alpha, never pure black */
+  --shadow-sm: 0 1px 2px rgba(44, 48, 51, 0.04), 0 1px 3px rgba(44, 48, 51, 0.04);
+  --shadow-md: 0 4px 16px rgba(44, 48, 51, 0.04), 0 2px 8px rgba(44, 48, 51, 0.04);
+  --shadow-lg: 0 8px 24px rgba(44, 48, 51, 0.20);
+  --shadow-ring-sage: 0 0 0 3px rgba(139, 157, 131, 0.15), 0 2px 8px rgba(44, 48, 51, 0.06), 0 4px 16px rgba(44, 48, 51, 0.04);
+
+  /* Brand gradients */
+  --grad-logo: linear-gradient(135deg, var(--sage) 0%, var(--ocean) 100%);
+  --grad-checkpoint: linear-gradient(135deg, #2C3033 0%, #3A4148 100%);
+  --grad-pill: linear-gradient(135deg, var(--sage-deep), var(--ocean));
+  --grad-avatar: linear-gradient(135deg, var(--terracotta), var(--lavender));
+
+  /* Page wash — layered radial glow */
+  --page-bg:
+    radial-gradient(1200px 600px at 80% -10%, rgba(184, 168, 216, 0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(192, 120, 86, 0.08), transparent 60%),
+    linear-gradient(180deg, var(--cream-warm) 0%, var(--cream) 600px);
+
+  /* Flow canvas dot grid */
+  --flow-bg:
+    radial-gradient(circle, rgba(148, 139, 130, 0.18) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(180deg, var(--cream) 0%, #F8F4EC 100%);
+
+  /* Item-tile gradients (timeline icon chips) */
+  --tile-flight-bg: linear-gradient(135deg, #EAF1F7, #DDE9F2);
+  --tile-flight-fg: var(--ocean);
+  --tile-flight-border: rgba(45, 90, 123, 0.18);
+  --tile-hotel-bg: linear-gradient(135deg, var(--lavender-soft), #D4C8E8);
+  --tile-hotel-fg: #5C4B85;
+  --tile-hotel-border: rgba(184, 168, 216, 0.40);
+  --tile-activity-bg: linear-gradient(135deg, #F1E4D8, var(--sand));
+  --tile-activity-fg: var(--terracotta);
+  --tile-activity-border: rgba(192, 120, 86, 0.22);
+  --tile-transit-bg: linear-gradient(135deg, #E5EFE3, #D6E4D2);
+  --tile-transit-fg: var(--sage-deep);
+  --tile-transit-border: rgba(139, 157, 131, 0.30);
+  --tile-checkpoint-bg: var(--charcoal);
+  --tile-checkpoint-fg: var(--cream);
+  --tile-checkpoint-border: var(--charcoal);
 }
 
 @layer base {

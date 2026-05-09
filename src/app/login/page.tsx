@@ -314,13 +314,13 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="mobile-logo" style={{ marginBottom: 32, textAlign: "center" }}>
             <span style={{
-              fontFamily: "var(--font-serif), Georgia, serif",
+              fontFamily: "var(--font-sans), Inter, sans-serif",
               fontSize: 24,
-              fontWeight: 500,
-              letterSpacing: "-0.025em",
+              fontWeight: 600,
+              letterSpacing: "-0.03em",
               color: "var(--charcoal)",
             }}>
-              Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
+              Dest<span style={{ color: "var(--sage-deep)" }}>ify</span>
             </span>
           </div>
 
