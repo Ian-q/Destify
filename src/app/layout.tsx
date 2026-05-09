@@ -35,7 +35,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-cream text-charcoal font-sans">
+      <body className="min-h-full flex flex-col bg-cream-warm text-charcoal font-sans">
         <TooltipProvider delayDuration={150}>{children}</TooltipProvider>
       </body>
     </html>
