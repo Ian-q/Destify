@@ -21,6 +21,7 @@ describe('loadSeedRows', () => {
     const rows = await testDb.select().from(conditionRow).where(eq(conditionRow.rowKey, 'US:JP'));
     expect(rows.length).toBe(1);
     expect(rows[0].rowType).toBe('visa_exemption');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- jsonb column is unknown at the type level
     expect((rows[0].data as any).exemptDays).toBe(90);
     expect(rows[0].source).toBe('seed');
     expect(rows[0].expiresAt).toBeNull();

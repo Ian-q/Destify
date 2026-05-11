@@ -15,6 +15,7 @@ export async function hydrateLeg(
   profile: PermanentProfile,
   context: TripContext,
   leg: Leg,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- bridges drizzle-orm/pglite (tests) and drizzle-orm/neon-http (prod) which have structurally incompatible types
   opts: { flowId: string; db?: any },
 ): Promise<HydratedLeg> {
   const skeletonFacts = buildFacts(profile, context, leg);

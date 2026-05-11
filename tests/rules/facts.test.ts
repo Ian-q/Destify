@@ -37,6 +37,7 @@ describe('buildFacts', () => {
   });
 
   it('passes through provided tables', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- minimal test fixture, full RowOf type would add noise
     const tables = { visa_exemption: { 'US:JP': { exemptDays: 90 } } } as any;
     const f = buildFacts(profile, context, leg, { tables });
     expect(f.tables.visa_exemption?.['US:JP'].exemptDays).toBe(90);

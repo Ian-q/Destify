@@ -38,6 +38,7 @@ export async function fetchRowViaAI<T extends RowType>(
       prompt: `Return the ${type} row for key "${key}". Match the schema exactly.`,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod composite parse output; data extracted via rest spread
     const { confidence, citations, ...data } = object as any;
     return { data: data as RowOf<T>, confidence, citations };
   } catch (err) {
