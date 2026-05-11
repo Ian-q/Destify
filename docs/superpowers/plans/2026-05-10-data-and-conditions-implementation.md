@@ -43,7 +43,11 @@ npm i -D drizzle-kit vitest @vitest/coverage-v8 @electric-sql/pglite tsx
 
 - [ ] **Step 3: Verify package.json picked up both groups**
 
-Run: `node -e "const p=require('./package.json'); for (const k of ['drizzle-orm','@neondatabase/serverless','zod','yaml','ai']) if (!p.dependencies[k]) throw new Error('missing dep: '+k); for (const k of ['drizzle-kit','vitest','@electric-sql/pglite','tsx']) if (!p.devDependencies[k]) throw new Error('missing dev dep: '+k); console.log('ok');"`
+Run (note: uses `=== undefined` instead of `!` to avoid zsh history expansion):
+
+```bash
+node -e "const p=require('./package.json'); for (const k of ['drizzle-orm','@neondatabase/serverless','zod','yaml','ai']) if (p.dependencies[k] === undefined) throw new Error('missing dep: '+k); for (const k of ['drizzle-kit','vitest','@electric-sql/pglite','tsx']) if (p.devDependencies[k] === undefined) throw new Error('missing dev dep: '+k); console.log('ok');"
+```
 
 Expected: prints `ok`.
 
