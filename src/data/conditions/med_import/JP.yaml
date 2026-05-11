@@ -1,0 +1,9 @@
+allowed:
+  - "ibuprofen"
+  - "acetaminophen"
+permitRequired:
+  - "amphetamines"
+  - "methylphenidate"
+banned:
+  - "pseudoephedrine"
+permitName: "Yakkan Shoumei"
