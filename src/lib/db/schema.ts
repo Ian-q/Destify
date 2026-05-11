@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, date, timestamp, jsonb, pgEnum, integer, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, date, timestamp, jsonb, pgEnum, integer, uniqueIndex, primaryKey } from 'drizzle-orm/pg-core';
 
 export const idpConvention = pgEnum('idp_convention', ['1949', '1968']);
 
@@ -54,3 +54,19 @@ export const tripContext = pgTable('trip_context', {
   extras: jsonb('extras').notNull().default({}),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const conditionSource = pgEnum('condition_source', ['seed', 'ai']);
+export const conditionConfidence = pgEnum('condition_confidence', ['high', 'medium', 'low']);
+
+export const conditionRow = pgTable('condition_row', {
+  rowType: text('row_type').notNull(),
+  rowKey: text('row_key').notNull(),
+  data: jsonb('data').notNull(),
+  source: conditionSource('source').notNull(),
+  confidence: conditionConfidence('confidence'),
+  citations: jsonb('citations'),
+  fetchedAt: timestamp('fetched_at', { withTimezone: true }).defaultNow().notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.rowType, t.rowKey] }),
+}));
