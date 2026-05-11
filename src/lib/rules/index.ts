@@ -37,3 +37,13 @@ export function resolveFlow(
     return {};
   }
 }
+
+export const FLOW_LEG_SEQ: Record<string, number> = {
+  'preflight-jp': 0,
+  'domestic-jp':  1,
+  'return-jp':    2,
+};
+
+export function legSeqForFlow(flowId: string): number | null {
+  return FLOW_LEG_SEQ[flowId] ?? null;
+}
