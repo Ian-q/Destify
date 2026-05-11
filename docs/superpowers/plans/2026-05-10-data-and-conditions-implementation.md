@@ -140,8 +140,11 @@ If a relevant guide exists (`environment-variables.md`, `configuring/environment
 - [ ] **Step 2: Create `drizzle.config.ts`**
 
 ```ts
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
 import { defineConfig } from 'drizzle-kit';
+
+loadEnv({ path: '.env.local' });
+if (!process.env.DATABASE_URL) loadEnv({ path: '.env' });
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL not set — run `vercel env pull .env.local` first.');
@@ -359,7 +362,9 @@ Expected: prompts to confirm; pick "Yes". Reports tables created.
 Create `scripts/db-smoke.ts`:
 
 ```ts
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
+loadEnv({ path: '.env.local' });
+if (!process.env.DATABASE_URL) loadEnv({ path: '.env' });
 import { db } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 
@@ -1702,7 +1707,9 @@ git commit -m "Wire FlowGraphView to hydrate conditions and auto-resolve on open
 Create `scripts/seed-conditions.ts`:
 
 ```ts
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
+loadEnv({ path: '.env.local' });
+if (!process.env.DATABASE_URL) loadEnv({ path: '.env' });
 import { db } from '@/lib/db/client';
 import { loadSeedRows } from '@/lib/conditions/seed';
 
