@@ -33,6 +33,10 @@ import { TRIP, type FlowGraph, type FlowNode } from "@/lib/trip-data";
 import { useTripStore, activePath } from "@/lib/use-trip-store";
 import { layoutFlow, NODE_SIZE } from "@/lib/flow-layout";
 import { Check, X, ExternalLink } from "lucide-react";
+import { hydrateLeg } from "@/lib/conditions/readiness";
+import { resolveFlow } from "@/lib/rules/index";
+import type { PermanentProfile, TripContext } from "@/lib/user-profile";
+import type { Leg } from "@/lib/rules/types";
 
 type NodeData = FlowNode & {
   flowId: string;
@@ -225,8 +229,38 @@ function FlowView({ flow }: { flow: FlowGraph }) {
 
 function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string> }) {
   const { flowDone, flowChoices } = useTripStore();
+  const applyResolution = useTripStore((s) => s.applyResolution);
   const rf = useReactFlow();
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }> | null>(null);
+
+  // Hard-coded demo profile/context/leg — real onboarding/trip-context capture is a future spec.
+  const profile: PermanentProfile = {
+    userId: 'demo', citizenships: ['US'], homeCountry: 'US',
+    idpConvention: null, idpExpiry: null,
+    controlledMeds: [], hasMinors: false, extras: {},
+  };
+  const context: TripContext = {
+    tripId: 'demo', travelingWithMinors: false, drivingAtDestination: false,
+    carryingControlledMeds: false, purpose: 'tourism', extras: {},
+  };
+  const activeLeg: Leg = { from: 'US', to: 'JP', startDate: '2026-06-01', endDate: '2026-06-10' };
+
+  // Hydrate conditions data and auto-resolve flow choices on open.
+  // Fires before the layout effect so resolved choices are in store when nodes render.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { facts } = await hydrateLeg(profile, context, activeLeg, { flowId: flow.id });
+        if (cancelled) return;
+        const output = resolveFlow(flow.id, profile, context, activeLeg, { tables: facts.tables });
+        applyResolution(flow.id, output);
+      } catch (err) {
+        console.error('[FlowGraphView] hydrate/resolve failed:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [flow.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Compute layered layout once per flow (geometry doesn't change with choices —
   // only highlighting does, which keeps the user's mental map stable).

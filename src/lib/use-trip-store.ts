@@ -17,6 +17,8 @@ type State = {
   docs: Record<string, DocState>;
   flowDone: Record<string, FlowState>; // flow id -> node done map
   flowChoices: Record<string, FlowChoiceState>; // flow id -> choices
+  flowResolved: Record<string, Record<string, { choiceId: string; ruleId: string; reason: string }>>;
+  flowOverrides: Record<string, Record<string, string>>;
 };
 
 type Actions = {
@@ -30,6 +32,7 @@ type Actions = {
   toggleFlowDone: (flowId: string, nodeId: string) => void;
   setFlowChoice: (flowId: string, nodeId: string, choiceId: string) => void;
   resetFlowChoices: (flowId: string) => void;
+  applyResolution: (flowId: string, output: Record<string, { choiceId: string; ruleId: string; reason: string }>) => void;
 };
 
 const initialDocs = Object.fromEntries(TRIP.docs.map((d) => [d.id, d.state]));
@@ -56,6 +59,8 @@ export const useTripStore = create<State & Actions>((set) => ({
   docs: initialDocs,
   flowDone: initialFlowDone,
   flowChoices: initialFlowChoices,
+  flowResolved: {},
+  flowOverrides: {},
 
   selectDay: (i) => set({ selectedDay: i }),
   setActiveItem: (id) => set({ activeItemId: id }),
@@ -99,6 +104,21 @@ export const useTripStore = create<State & Actions>((set) => ({
         }
       }
       return { flowChoices: { ...s.flowChoices, [flowId]: reset } };
+    }),
+
+  applyResolution: (flowId, output) =>
+    set((s) => {
+      const overrides = s.flowOverrides[flowId] ?? {};
+      const newFlowChoices = { ...s.flowChoices };
+      const flowSpecificChoices = { ...(newFlowChoices[flowId] ?? {}) };
+      for (const [nodeId, resolved] of Object.entries(output)) {
+        flowSpecificChoices[nodeId] = overrides[nodeId] ?? resolved.choiceId;
+      }
+      newFlowChoices[flowId] = flowSpecificChoices;
+      return {
+        flowChoices: newFlowChoices,
+        flowResolved: { ...s.flowResolved, [flowId]: output },
+      };
     }),
 }));
 
