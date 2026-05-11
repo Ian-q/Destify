@@ -30,7 +30,8 @@ src/lib/
 │  ├─ seed.ts               // Loads src/data/conditions/**/*.yaml at boot
 │  ├─ ai.ts                 // Vercel AI Gateway fallback
 │  ├─ index.ts              // getRow() — the public API: seed → cache → AI
-│  └─ readiness.ts          // hydrateLeg() — bulk row fetch per leg
+│  ├─ readiness.ts          // hydrateLeg() — bulk row fetch per leg
+│  └─ actions.ts            // 'use server' boundary — resolveFlowAction()
 └─ rules/                   // (per existing rule layer spec, extended)
    ├─ types.ts              // Facts now has a `tables` field
    ├─ facts.ts              // buildFacts accepts optional hydrated tables
@@ -296,22 +297,46 @@ export async function hydrateLeg(
 }
 ```
 
-**Trigger.** Existing `FlowGraphView` effect (currently calls `resolveFlow` synchronously on flow open) becomes:
+**Trigger and the client/server boundary.** `FlowGraphView` is a client component. `hydrateLeg` reaches into Neon via the Drizzle client, which is a *server-only* concern — `DATABASE_URL` is intentionally never exposed to the browser by Next.js. The client therefore cannot call `hydrateLeg` directly; doing so crashes with `DATABASE_URL not set` on the first browser render.
+
+The boundary is a Next.js Server Action. `src/lib/conditions/actions.ts` starts with `'use server'` and exports a single function the client may call:
+
+```ts
+// src/lib/conditions/actions.ts
+'use server';
+
+import { hydrateLeg } from './readiness';
+import { resolveFlow } from '@/lib/rules/index';
+import type { PermanentProfile, TripContext } from '@/lib/user-profile';
+import type { Leg, ResolverOutput } from '@/lib/rules/types';
+
+export async function resolveFlowAction(
+  flowId: string, profile: PermanentProfile, context: TripContext, leg: Leg,
+): Promise<{ output: ResolverOutput; missing: { type: string; key: string }[] }> {
+  const { facts, missing } = await hydrateLeg(profile, context, leg, { flowId });
+  const output = resolveFlow(flowId, profile, context, leg, { tables: facts.tables });
+  return { output, missing };
+}
+```
+
+The client effect calls the action and applies the result:
 
 ```ts
 useEffect(() => {
   let cancelled = false;
   (async () => {
-    const hydrated = await hydrateLeg(profile, context, leg);
+    const { output, missing } = await resolveFlowAction(flow.id, profile, context, leg);
     if (cancelled) return;
-    applyResolution(flow.id, resolveFlow(flow.id, hydrated.facts));
-    setMissing(hydrated.missing);
+    applyResolution(flow.id, output);
+    setMissing(missing);
   })();
   return () => { cancelled = true; };
 }, [flow.id, profile, context, leg]);
 ```
 
-`resolveFlow` stays synchronous. The await happens one layer up; resolvers keep their sync, pure shape.
+`resolveFlow` and `buildFacts` stay synchronous. `hydrateLeg` stays unchanged. The await happens at the Server Action boundary; resolvers keep their sync, pure shape, and the DB client never appears in a client bundle.
+
+**Profile/context inputs to the action.** Until auth and onboarding ship, the client passes hard-coded demo values; once auth lands, the action will derive `profile` and `context` server-side from the authenticated user instead of trusting the client. Treat the current shape as a temporary scaffold, not a long-term contract.
 
 **Cascade across legs.** `TripContext` is per-trip, not per-leg, so `carryingControlledMeds: true` propagates to every leg's `Facts` automatically. A US→JP→PH trip runs `hydrateLeg` three times (once per leg); each leg pulls its own destination rows (`med_import:JP`, then `med_import:PH`) but reads the same `carryingControlledMeds` from `trip_context`. Visual treatment of "child nodes appear on later legs" is a downstream UI concern; the data already supports it.
 
