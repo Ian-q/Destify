@@ -1,4 +1,7 @@
+"use client";
+
 import { Sparkles, Clock } from "lucide-react";
+import { toast } from "@/components/destify/toast";
 
 const TABS = [
   { label: "My trips", active: true },
@@ -38,9 +41,12 @@ export function TopBar() {
         style={{ background: "#ECE4D6", borderColor: "rgba(148,139,130,.18)" }}
       >
         {TABS.map((n) => (
-          <a
+          <button
             key={n.label}
-            href="#"
+            type="button"
+            onClick={() => {
+              if (!n.active) toast(`${n.label} — coming soon`);
+            }}
             className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors"
             style={
               n.active
@@ -49,8 +55,9 @@ export function TopBar() {
                     color: "var(--charcoal)",
                     boxShadow:
                       "0 1px 2px rgba(44,48,51,.08), 0 0 0 1px rgba(148,139,130,.12)",
+                    cursor: "default",
                   }
-                : { background: "transparent", color: "var(--mocha)" }
+                : { background: "transparent", color: "var(--mocha)", cursor: "pointer" }
             }
           >
             {n.active && (
@@ -61,7 +68,7 @@ export function TopBar() {
               />
             )}
             {n.label}
-          </a>
+          </button>
         ))}
       </nav>
 
@@ -78,7 +85,9 @@ export function TopBar() {
           Auto-saved · just now
         </span>
         <button
-          className="rounded-full border px-3 py-1.5 text-[13px]"
+          type="button"
+          onClick={() => toast("Share — coming soon")}
+          className="rounded-full border px-3 py-1.5 text-[13px] cursor-pointer"
           style={{
             background: "var(--cream)",
             borderColor: "rgba(148,139,130,.18)",

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, MapPin } from "lucide-react";
+import { toast } from "@/components/destify/toast";
 
 type Mode = "signin" | "signup";
 
@@ -22,8 +24,16 @@ const DESTINATIONS = [
 ];
 
 export default function LoginPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("signin");
   const [showPassword, setShowPassword] = useState(false);
+
+  const bypassLogin = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("destify-demo-session", "1");
+    }
+    router.push("/organizer");
+  };
 
   return (
     <>
@@ -378,7 +388,7 @@ export default function LoginPage() {
 
             {/* Social auth buttons */}
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-              <button className="btn-google">
+              <button type="button" className="btn-google" onClick={bypassLogin}>
                 <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -387,7 +397,7 @@ export default function LoginPage() {
                 </svg>
                 Continue with Google
               </button>
-              <button className="btn-google">
+              <button type="button" className="btn-google" onClick={bypassLogin}>
                 <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                   <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.39.07 2.36.74 3.18.8 1.22-.26 2.38-1.01 3.7-.9 1.58.13 2.77.79 3.55 1.99-3.23 1.94-2.47 5.89.54 7.02-.65 1.58-1.49 3.14-3.0 3.97zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                 </svg>
@@ -415,7 +425,14 @@ export default function LoginPage() {
             </div>
 
             {/* Fields */}
-            <form onSubmit={(e) => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <form
+              onSubmit={(e) => {
+                // TODO: real auth — for the prototype any submit goes to /organizer via bypassLogin (issue #6)
+                e.preventDefault();
+                bypassLogin();
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: 14 }}
+            >
 
               {mode === "signup" && (
                 <div className="field-appear">
@@ -450,6 +467,7 @@ export default function LoginPage() {
                   {mode === "signin" && (
                     <button
                       type="button"
+                      onClick={() => toast("Password reset — coming soon")}
                       style={{
                         fontFamily: "var(--font-sans)",
                         fontSize: 12,
@@ -498,6 +516,28 @@ export default function LoginPage() {
               <button type="submit" className="btn-main" style={{ marginTop: 2 }}>
                 {mode === "signin" ? "Sign in" : "Create account"}
               </button>
+
+              <button
+                type="button"
+                onClick={bypassLogin}
+                style={{
+                  marginTop: 6,
+                  width: "100%",
+                  padding: "10px",
+                  background: "transparent",
+                  border: "1.5px dashed rgba(148,139,130,.32)",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  color: "var(--mocha)",
+                  letterSpacing: "0.01em",
+                  cursor: "pointer",
+                  transition: "border-color 0.18s, color 0.18s",
+                }}
+              >
+                Skip — try the demo
+              </button>
             </form>
 
             {mode === "signup" && (
@@ -510,9 +550,24 @@ export default function LoginPage() {
                 lineHeight: 1.6,
               }}>
                 By creating an account you agree to our{" "}
-                <span style={{ color: "var(--mocha)", textDecoration: "underline", cursor: "pointer" }}>Terms</span>
+                <button
+                  type="button"
+                  onClick={() => toast("Terms — coming soon")}
+                  className="link-inline"
+                  style={{ color: "var(--mocha)", textDecoration: "underline", fontSize: 11.5 }}
+                >
+                  Terms
+                </button>
                 {" "}and{" "}
-                <span style={{ color: "var(--mocha)", textDecoration: "underline", cursor: "pointer" }}>Privacy Policy</span>.
+                <button
+                  type="button"
+                  onClick={() => toast("Privacy policy — coming soon")}
+                  className="link-inline"
+                  style={{ color: "var(--mocha)", textDecoration: "underline", fontSize: 11.5 }}
+                >
+                  Privacy Policy
+                </button>
+                .
               </p>
             )}
 

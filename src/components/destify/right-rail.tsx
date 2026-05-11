@@ -2,6 +2,7 @@
 
 import { TRIP, type DocItem, type Hotel } from "@/lib/trip-data";
 import { useTripStore } from "@/lib/use-trip-store";
+import { toast } from "@/components/destify/toast";
 import { Check, AlertTriangle, ArrowRight, ExternalLink } from "lucide-react";
 
 export function RightRail() {
@@ -60,10 +61,15 @@ function BudgetCard() {
           {["USD", "JPY"].map((c, i) => (
             <button
               key={c}
+              type="button"
+              onClick={() => {
+                if (i !== 0) toast("Currency conversion — coming soon");
+              }}
               className="rounded-full px-3 py-1 text-[12.5px]"
               style={{
                 background: i === 0 ? "var(--cream)" : "transparent",
                 color: i === 0 ? "var(--charcoal)" : "var(--mocha)",
+                cursor: i === 0 ? "default" : "pointer",
               }}
             >
               {c}
@@ -194,10 +200,15 @@ function StaysCard() {
           {["Picked", "Alts"].map((c, i) => (
             <button
               key={c}
+              type="button"
+              onClick={() => {
+                if (i !== 0) toast("Alternative stays — coming soon");
+              }}
               className="rounded-full px-3 py-1 text-[12.5px]"
               style={{
                 background: i === 0 ? "var(--cream)" : "transparent",
                 color: i === 0 ? "var(--charcoal)" : "var(--mocha)",
+                cursor: i === 0 ? "default" : "pointer",
               }}
             >
               {c}
