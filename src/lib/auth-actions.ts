@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { users, trip, leg, tripContext } from '@/lib/db/schema';
 import { getSessionUserId, setSessionCookie, clearSessionCookie } from '@/lib/session';
 
@@ -32,7 +32,8 @@ export async function signInDemo(db: AnyDb): Promise<{ userId: string; tripId: s
   if (existing) {
     const u = await db.select().from(users).where(eq(users.id, existing));
     if (u.length > 0) {
-      const t = await db.select().from(trip).where(eq(trip.userId, existing));
+      const t = await db.select().from(trip).where(eq(trip.userId, existing))
+        .orderBy(desc(trip.createdAt)).limit(1);
       if (t.length > 0) return { userId: existing, tripId: t[0].id };
     }
   }
