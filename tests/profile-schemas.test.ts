@@ -1,8 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-vi.mock('server-only', () => ({}));
-
-import { Tier1ProfileInput, TripContextInput } from '@/lib/profile-actions';
+import { Tier1ProfileInput, TripContextInput } from '@/lib/profile-schemas';
 
 describe('Tier1ProfileInput', () => {
   const valid = {
