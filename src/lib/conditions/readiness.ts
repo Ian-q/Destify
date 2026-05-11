@@ -3,7 +3,7 @@ import { REGISTRY } from '@/lib/rules/index';
 import { getRow } from './index';
 import type { Facts, Leg } from '@/lib/rules/types';
 import type { PermanentProfile, TripContext } from '@/lib/user-profile';
-import type { RowType, RowOf } from './registry';
+import type { RowType } from './registry';
 
 export type MissingRow = { type: RowType; key: string };
 export type HydratedLeg = {
@@ -33,8 +33,8 @@ export async function hydrateLeg(
       missing.push({ type: r.type, key: r.key });
       continue;
     }
-    const bucket = (tables[r.type] ??= {} as Record<string, RowOf<typeof r.type>>);
-    (bucket as any)[r.key] = r.data;
+    const tablesAny = tables as Record<string, Record<string, unknown>>;
+    (tablesAny[r.type] ??= {})[r.key] = r.data;
   }
   return { facts: buildFacts(profile, context, leg, { tables }), missing };
 }
