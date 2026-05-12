@@ -40,6 +40,7 @@ type NodeData = FlowNode & {
   isOnPath: boolean;
   isDone: boolean;
   selectedChoice?: string;
+  autoResolved?: { ruleId: string; reason: string };
 };
 
 export function FlowModal() {
@@ -225,7 +226,7 @@ function FlowView({ flow }: { flow: FlowGraph }) {
 // ─── Graph ────────────────────────────────────────────────────────────
 
 function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string> }) {
-  const { flowDone, flowChoices } = useTripStore();
+  const { flowDone, flowChoices, flowResolved } = useTripStore();
   const applyResolution = useTripStore((s) => s.applyResolution);
   const rf = useReactFlow();
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }> | null>(null);
@@ -264,6 +265,7 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
 
     const nodes: Node<NodeData>[] = flow.nodes.map((n) => {
       const size = NODE_SIZE[n.kind];
+      const resolved = flowResolved[flow.id]?.[n.id];
       return {
         id: n.id,
         type:
@@ -277,6 +279,7 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
           isOnPath: pathSet.has(n.id),
           isDone: !!flowDone[flow.id]?.[n.id],
           selectedChoice: flowChoices[flow.id]?.[n.id],
+          autoResolved: resolved ? { ruleId: resolved.ruleId, reason: resolved.reason } : undefined,
         },
         width: size.width,
         height: size.height,
@@ -614,7 +617,7 @@ function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
       </svg>
 
       <div
-        className="absolute left-0 right-0 grid place-items-center"
+        className="absolute left-0 right-0 grid place-items-center gap-1"
         style={{ top: 0, height: diamondH, opacity: onPath ? 1 : 0.32 }}
       >
         <span
@@ -623,6 +626,19 @@ function DiamondNode({ data }: NodeProps<Node<NodeData>>) {
         >
           Decision
         </span>
+        {data.autoResolved && (
+          <span
+            title={data.autoResolved.reason}
+            className="rounded-full px-1.5 py-[1px] font-mono text-[8.5px] font-semibold uppercase"
+            style={{
+              background: "var(--sage-deep)",
+              color: "var(--cream)",
+              letterSpacing: "0.12em",
+            }}
+          >
+            Auto
+          </span>
+        )}
       </div>
 
       <div

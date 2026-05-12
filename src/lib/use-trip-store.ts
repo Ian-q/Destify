@@ -108,15 +108,31 @@ export const useTripStore = create<State & Actions>((set) => ({
 
   applyResolution: (flowId, output) =>
     set((s) => {
+      const flow = TRIP.flows[flowId];
+      if (!flow) return s;
+      const previousResolved = s.flowResolved[flowId] ?? {};
       const overrides = s.flowOverrides[flowId] ?? {};
-      const newFlowChoices = { ...s.flowChoices };
-      const flowSpecificChoices = { ...(newFlowChoices[flowId] ?? {}) };
+      const flowSpecificChoices = { ...(s.flowChoices[flowId] ?? {}) };
+
+      // Restore previously-auto-resolved nodes that the new output drops
+      // (and aren't user-overridden) back to their trip-data defaults.
+      // Without this, a stale auto value persists when a profile change makes a rule stop firing.
+      for (const nodeId of Object.keys(previousResolved)) {
+        if (nodeId in output) continue;
+        if (nodeId in overrides) continue;
+        const node = flow.nodes.find((n) => n.id === nodeId);
+        if (node?.choices) {
+          const def = node.choices.find((c) => c.on) ?? node.choices[0];
+          flowSpecificChoices[nodeId] = def.id;
+        }
+      }
+
       for (const [nodeId, resolved] of Object.entries(output)) {
         flowSpecificChoices[nodeId] = overrides[nodeId] ?? resolved.choiceId;
       }
-      newFlowChoices[flowId] = flowSpecificChoices;
+
       return {
-        flowChoices: newFlowChoices,
+        flowChoices: { ...s.flowChoices, [flowId]: flowSpecificChoices },
         flowResolved: { ...s.flowResolved, [flowId]: output },
       };
     }),
