@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, MapPin } from "lucide-react";
 import { toast } from "@/components/destify/toast";
+import { signInDemoAction } from "@/lib/auth-actions";
 
 type Mode = "signin" | "signup";
 
@@ -28,11 +29,13 @@ export default function LoginPage() {
   const [mode, setMode] = useState<Mode>("signin");
   const [showPassword, setShowPassword] = useState(false);
 
-  const bypassLogin = () => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("destify-demo-session", "1");
+  const bypassLogin = async () => {
+    try {
+      await signInDemoAction();
+      router.push("/organizer");
+    } catch (err) {
+      console.error('[bypassLogin] signInDemoAction failed:', err);
     }
-    router.push("/organizer");
   };
 
   return (
