@@ -266,6 +266,12 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
     const nodes: Node<NodeData>[] = flow.nodes.map((n) => {
       const size = NODE_SIZE[n.kind];
       const resolved = flowResolved[flow.id]?.[n.id];
+      const currentChoice = flowChoices[flow.id]?.[n.id];
+      // Only treat as auto-resolved when the displayed choice still matches what the rule
+      // resolved to. A user manual setFlowChoice or a resetFlowChoices that landed on a
+      // different default would otherwise leave a stale "Auto" pill claiming credit for a
+      // choice the rule did not produce.
+      const autoMatch = resolved && currentChoice === resolved.choiceId;
       return {
         id: n.id,
         type:
@@ -278,8 +284,8 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
           flowId: flow.id,
           isOnPath: pathSet.has(n.id),
           isDone: !!flowDone[flow.id]?.[n.id],
-          selectedChoice: flowChoices[flow.id]?.[n.id],
-          autoResolved: resolved ? { ruleId: resolved.ruleId, reason: resolved.reason } : undefined,
+          selectedChoice: currentChoice,
+          autoResolved: autoMatch ? { ruleId: resolved.ruleId, reason: resolved.reason } : undefined,
         },
         width: size.width,
         height: size.height,
