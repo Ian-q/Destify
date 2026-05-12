@@ -2,6 +2,7 @@
 
 import { Sparkles, Clock } from "lucide-react";
 import { toast } from "@/components/destify/toast";
+import { AvatarMenu } from "./avatar-menu";
 
 const TABS = [
   { label: "My trips", active: true },
@@ -96,12 +97,7 @@ export function TopBar() {
         >
           Share
         </button>
-        <div
-          className="grid h-8 w-8 place-items-center rounded-full text-[13px] font-semibold text-white"
-          style={{ background: "var(--grad-avatar)" }}
-        >
-          GV
-        </div>
+        <AvatarMenu />
       </div>
     </header>
   );
