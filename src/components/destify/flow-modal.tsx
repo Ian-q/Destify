@@ -34,8 +34,6 @@ import { useTripStore, activePath } from "@/lib/use-trip-store";
 import { layoutFlow, NODE_SIZE } from "@/lib/flow-layout";
 import { Check, X, ExternalLink } from "lucide-react";
 import { resolveFlowAction } from "@/lib/conditions/actions";
-import type { PermanentProfile, TripContext } from "@/lib/user-profile";
-import type { Leg } from "@/lib/rules/types";
 
 type NodeData = FlowNode & {
   flowId: string;
@@ -232,25 +230,14 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
   const rf = useReactFlow();
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }> | null>(null);
 
-  // Hard-coded demo profile/context/leg — real onboarding/trip-context capture is a future spec.
-  const profile: PermanentProfile = {
-    userId: 'demo', citizenships: ['US'], homeCountry: 'US',
-    idpConvention: null, idpExpiry: null,
-    controlledMeds: [], hasMinors: false, extras: {},
-  };
-  const context: TripContext = {
-    tripId: 'demo', travelingWithMinors: false, drivingAtDestination: false,
-    carryingControlledMeds: false, purpose: 'tourism', extras: {},
-  };
-  const activeLeg: Leg = { from: 'US', to: 'JP', startDate: '2026-06-01', endDate: '2026-06-10' };
-
   // Hydrate conditions data and auto-resolve flow choices on open.
-  // Runs via a Server Action so the DB client stays server-only.
+  // Runs via a Server Action so the DB client stays server-only; profile/context
+  // and the active leg are derived server-side from the session + trip.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const { output } = await resolveFlowAction(flow.id, profile, context, activeLeg);
+        const { output } = await resolveFlowAction(flow.id);
         if (cancelled) return;
         applyResolution(flow.id, output);
       } catch (err) {
@@ -258,7 +245,7 @@ function FlowGraphView({ flow, pathSet }: { flow: FlowGraph; pathSet: Set<string
       }
     })();
     return () => { cancelled = true; };
-  }, [flow.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [flow.id, applyResolution]);
 
   // Compute layered layout once per flow (geometry doesn't change with choices —
   // only highlighting does, which keeps the user's mental map stable).
