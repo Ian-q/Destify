@@ -2,10 +2,13 @@
 
 import { TRIP, type FlowGraph } from "@/lib/trip-data";
 import { useTripStore, activePath } from "@/lib/use-trip-store";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { TripDetailsDrawer } from "./trip-details-drawer";
+import type { TripContext } from "@/lib/user-profile";
 
-export function TripHeader() {
+export function TripHeader({ tripId, tripContext }: { tripId: string | null; tripContext: TripContext | null }) {
   const { flowDone, flowChoices, openFlow } = useTripStore();
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   // Build readiness from the primary preflight flow
   const { pct, doneCount, totalCount } = useMemo(() => {
@@ -63,44 +66,70 @@ export function TripHeader() {
         </div>
       </div>
 
-      <button
-        onClick={() => openFlow("preflight-jp")}
-        className="group flex min-w-[300px] items-center gap-4 rounded-2xl border px-3.5 py-3 text-left transition-shadow hover:shadow-[var(--shadow-sm)]"
-        style={{
-          background: "linear-gradient(135deg, var(--sand) 0%, #F5EDE0 100%)",
-          borderColor: "rgba(148,139,130,.14)",
-        }}
-      >
-        <div className="min-w-0 flex-1">
-          <div
-            className="text-[10.5px] font-medium uppercase tracking-[0.1em]"
-            style={{ color: "var(--mocha)" }}
+      <div className="flex flex-col items-end gap-2">
+        {tripId && (
+          <button
+            type="button"
+            onClick={() => setDetailsOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-medium"
+            style={{
+              background: "var(--cream)",
+              borderColor: "rgba(148,139,130,.18)",
+              color: "var(--charcoal-soft)",
+              alignSelf: "flex-start",
+              cursor: "pointer",
+            }}
           >
-            Trip readiness
-          </div>
-          <div
-            className="mt-2 h-1.5 overflow-hidden rounded-full"
-            style={{ background: "rgba(148,139,130,.18)" }}
-          >
-            <div
-              className="h-full rounded-full transition-[width] duration-400"
-              style={{
-                width: `${pct}%`,
-                background: "linear-gradient(90deg, var(--sage), var(--sage-deep))",
-              }}
-            />
-          </div>
-          <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--mocha)" }}>
-            {doneCount} of {totalCount} checklist items complete
-          </div>
-        </div>
-        <div
-          className="font-serif text-[26px] font-medium leading-none"
-          style={{ letterSpacing: "-0.02em" }}
+            Trip details
+          </button>
+        )}
+        <button
+          onClick={() => openFlow("preflight-jp")}
+          className="group flex min-w-[300px] items-center gap-4 rounded-2xl border px-3.5 py-3 text-left transition-shadow hover:shadow-[var(--shadow-sm)]"
+          style={{
+            background: "linear-gradient(135deg, var(--sand) 0%, #F5EDE0 100%)",
+            borderColor: "rgba(148,139,130,.14)",
+          }}
         >
-          {pct}%
-        </div>
-      </button>
+          <div className="min-w-0 flex-1">
+            <div
+              className="text-[10.5px] font-medium uppercase tracking-[0.1em]"
+              style={{ color: "var(--mocha)" }}
+            >
+              Trip readiness
+            </div>
+            <div
+              className="mt-2 h-1.5 overflow-hidden rounded-full"
+              style={{ background: "rgba(148,139,130,.18)" }}
+            >
+              <div
+                className="h-full rounded-full transition-[width] duration-400"
+                style={{
+                  width: `${pct}%`,
+                  background: "linear-gradient(90deg, var(--sage), var(--sage-deep))",
+                }}
+              />
+            </div>
+            <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--mocha)" }}>
+              {doneCount} of {totalCount} checklist items complete
+            </div>
+          </div>
+          <div
+            className="font-serif text-[26px] font-medium leading-none"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            {pct}%
+          </div>
+        </button>
+      </div>
+      {tripId && (
+        <TripDetailsDrawer
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          tripId={tripId}
+          initial={tripContext}
+        />
+      )}
     </section>
   );
 }
