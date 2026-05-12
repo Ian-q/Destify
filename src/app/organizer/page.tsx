@@ -1,15 +1,32 @@
+import { redirect } from 'next/navigation';
+import { eq, desc } from 'drizzle-orm';
 import { TopBar } from "@/components/destify/topbar";
 import { TripHeader } from "@/components/destify/trip-header";
 import { TimelinePanel } from "@/components/destify/timeline-panel";
 import { RouteMap } from "@/components/destify/route-map";
 import { RightRail } from "@/components/destify/right-rail";
 import { FlowModal } from "@/components/destify/flow-modal";
+import { getSessionUserId } from "@/lib/session";
+import { getProfileAction, getTripContextAction } from "@/lib/profile-actions";
+import { db } from "@/lib/db/client";
+import { trip } from "@/lib/db/schema";
 
-export default function OrganizerPage() {
+export default async function OrganizerPage() {
+  const userId = await getSessionUserId();
+  if (!userId) redirect('/login');
+
+  const profile = await getProfileAction();
+  if (!profile) redirect('/onboarding');
+
+  const trips = await db.select().from(trip).where(eq(trip.userId, userId)).orderBy(desc(trip.createdAt)).limit(1);
+  if (trips.length === 0) redirect('/login'); // signInDemoAction always seeds one; defensive
+  const activeTrip = trips[0];
+  const tripContext = await getTripContextAction(activeTrip.id);
+
   return (
     <>
       <TopBar />
-      <TripHeader />
+      <TripHeader tripId={activeTrip.id} tripContext={tripContext} />
       <main className="grid grid-cols-1 items-start gap-4 px-7 pb-10 pt-2 lg:grid-cols-[420px_1fr] xl:grid-cols-[420px_1fr_360px]">
         <TimelinePanel />
         <RouteMap />
