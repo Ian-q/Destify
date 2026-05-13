@@ -356,9 +356,10 @@ export default function LandingPage() {
           onClick={() => skipFnRef.current?.()}
           style={{
             position: 'absolute',
-            top: '50%',
+            top: phase >= 4 ? '34%' : '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
+            transition: 'top 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
             zIndex: 2,
             width: '100%',
             maxWidth: 960,
@@ -369,7 +370,7 @@ export default function LandingPage() {
             cursor: phase < 4 ? 'pointer' : 'default',
           }}
         >
-          {phase < 4 ? (
+          {phase >= 1 && phase < 4 ? (
             <LayoutGroup>
               <motion.div
                 layout
@@ -449,7 +450,7 @@ export default function LandingPage() {
                 </div>
               </motion.div>
             </LayoutGroup>
-          ) : (
+          ) : phase >= 4 ? (
             /* Static wordmark at phase 4 — matches nav style, scaled up */
             <div
               style={{
@@ -463,7 +464,7 @@ export default function LandingPage() {
             >
               Dest<em style={{ fontStyle: 'italic', color: 'var(--sage-deep)' }}>ified</em>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Tagline + CTA — phase 4 */}
