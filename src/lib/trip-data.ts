@@ -1,4 +1,4 @@
-// Demo trip data for the Destify organizer dashboard.
+// Demo trip data for the Destified organizer dashboard.
 // Coordinates are real (lat/lng) so the Leaflet map can geocode pins from data.
 // Future: this will be persisted per-user in a database; the shape here is the
 // in-memory representation that the React tree consumes.

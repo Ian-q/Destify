@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Destify — plan trips, slowly.",
+  title: "Destified — plan trips, slowly.",
   description:
     "A travel-planning organizer that combines an interactive itinerary, a route map, and smart pre-flight checklists driven by a decision-tree flowchart.",
 };

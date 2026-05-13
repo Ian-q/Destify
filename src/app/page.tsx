@@ -140,7 +140,7 @@ export default function LandingPage() {
           letterSpacing: "-0.02em",
           color: "var(--charcoal)",
         }}>
-          Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
+          Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ified</em>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Link
@@ -611,7 +611,7 @@ export default function LandingPage() {
               borderLeft: "1.5px dashed rgba(110,128,104,.28)",
               pointerEvents: "none",
             }} />
-            <StepRow n="01" title="Add your destinations" body="Drop in where you're going. Destify plots your route and calculates distances automatically." />
+            <StepRow n="01" title="Add your destinations" body="Drop in where you're going. Destified plots your route and calculates distances automatically." />
             <StepRow n="02" title="Build your itinerary" body="Add activities, hotels, and transit legs to a timeline that updates your map in real time." />
             <StepRow n="03" title="Follow the checklist" body="The guided flow walks you through everything you need to prepare — tailored to your specific journey." last />
           </div>

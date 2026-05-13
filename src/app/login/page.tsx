@@ -232,7 +232,7 @@ export default function LoginPage() {
 
           {/* Logo */}
           <Link href="/" style={{ display: "flex", lineHeight: 0, position: "relative", zIndex: 1 }}>
-            <img src="/logo.png" alt="Destify" style={{ width: 32, height: 32, borderRadius: 9 }} />
+            <img src="/logo.png" alt="Destified" style={{ width: 32, height: 32, borderRadius: 9 }} />
           </Link>
 
           {/* Central quote */}
@@ -291,7 +291,7 @@ export default function LoginPage() {
                 lineHeight: 1.55,
                 margin: 0,
               }}>
-                "Planning our honeymoon used to feel overwhelming — Destify made it feel like the adventure itself."
+                "Planning our honeymoon used to feel overwhelming — Destified made it feel like the adventure itself."
               </p>
               <p style={{
                 fontFamily: "var(--font-sans)",
@@ -333,7 +333,7 @@ export default function LoginPage() {
               letterSpacing: "-0.03em",
               color: "var(--charcoal)",
             }}>
-              Dest<span style={{ color: "var(--sage-deep)" }}>ify</span>
+              Dest<span style={{ color: "var(--sage-deep)" }}>ified</span>
             </span>
           </div>
 

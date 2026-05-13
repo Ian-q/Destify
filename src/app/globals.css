@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─── Destify palette + design tokens ────────────────────────────────── */
+/* ─── Destified palette + design tokens ────────────────────────────────── */
 @theme inline {
   /* shadcn token plumbing */
   --color-background: var(--background);
@@ -50,7 +50,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Destify earth-toned palette */
+  /* Destified earth-toned palette */
   --color-sage: var(--sage);
   --color-sage-deep: var(--sage-deep);
   --color-terracotta: var(--terracotta);
@@ -104,7 +104,7 @@
   --sidebar-border: oklch(0.88 0.01 70);
   --sidebar-ring: oklch(0.7 0.04 70);
 
-  /* Destify palette */
+  /* Destified palette */
   --sage: #8B9D83;
   --sage-deep: #6E8068;
   --terracotta: #C07856;
@@ -213,7 +213,7 @@
 }
 
 /* Leaflet — base styles imported inside the map component file. */
-/* Tweak the default tooltip to match Destify's airy badge look. */
+/* Tweak the default tooltip to match Destified's airy badge look. */
 .leaflet-tooltip.pin-tip,
 .leaflet-tooltip.route-tip {
   background: #FDFBF7;
@@ -242,7 +242,7 @@
   background: rgba(253, 251, 247, 0.85) !important;
   font-size: 10px !important;
 }
-/* Restyle the zoom +/− buttons to match Destify's cream-pill aesthetic */
+/* Restyle the zoom +/− buttons to match Destified's cream-pill aesthetic */
 .leaflet-touch .leaflet-bar,
 .leaflet-bar {
   border: 1px solid rgba(148, 139, 130, 0.16) !important;

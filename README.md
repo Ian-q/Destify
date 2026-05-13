@@ -1,11 +1,11 @@
-# Destify
+# Destified
 
 A travel-planning organizer that combines an interactive itinerary, a route map,
 and **smart pre-flight checklists driven by a decision-tree flowchart**. Built
 on Next.js + shadcn/ui.
 
 The current build is the **trip organizer** view: pick a trip you've already
-sketched out and Destify shows it as a vertical timeline alongside a route map
+sketched out and Destified shows it as a vertical timeline alongside a route map
 and a right rail of budget / documents / stays. Flight legs are preceded by a
 checkpoint card that opens a flowchart of *only the prep steps that actually
 apply to you* (passport, visa, prescription rules, JR Pass, IDP, …) — each with
@@ -35,10 +35,10 @@ and flights against a budget and pipe selections back into the organizer.
 src/
 ├── app/
 │   ├── layout.tsx          ← Inter / Fraunces / JetBrains Mono + TooltipProvider
-│   ├── globals.css         ← shadcn tokens + Destify earth-toned palette
+│   ├── globals.css         ← shadcn tokens + Destified earth-toned palette
 │   └── page.tsx            ← /  organizer dashboard (top bar → header → grid)
 ├── components/
-│   ├── destify/
+│   ├── destified/
 │   │   ├── topbar.tsx
 │   │   ├── trip-header.tsx        ← title, dates, readiness card
 │   │   ├── timeline-panel.tsx     ← day picker + per-day items + checkpoint cards

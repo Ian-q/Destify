@@ -33,7 +33,7 @@ export function TopBar() {
           className="text-[18px] font-semibold"
           style={{ letterSpacing: "-0.03em", color: "var(--charcoal)" }}
         >
-          Dest<span style={{ color: "var(--sage-deep)" }}>ify</span>
+          Dest<span style={{ color: "var(--sage-deep)" }}>ified</span>
         </div>
       </div>
 
