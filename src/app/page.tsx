@@ -65,6 +65,8 @@ export default function LandingPage() {
     return () => { document.body.style.overflow = ""; };
   }, [phase]);
 
+  const skipFnRef = useRef<(() => void) | null>(null);
+
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
 
@@ -82,7 +84,24 @@ export default function LandingPage() {
     timers.push(setTimeout(() => setPhase(3), IMGS_END + 3900));
     timers.push(setTimeout(() => setPhase(4), IMGS_END + 5000));
 
-    return () => timers.forEach(clearTimeout);
+    const skip = () => {
+      timers.forEach(clearTimeout);
+      setImgVisible(false);
+      setPhase(4);
+    };
+    skipFnRef.current = skip;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === 'Escape') skip();
+    };
+
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
   }, []);
 
   return (
@@ -325,6 +344,7 @@ export default function LandingPage() {
 
         {/* Animation stage */}
         <div
+          onClick={() => skipFnRef.current?.()}
           style={{
             position: "relative",
             zIndex: 2,
