@@ -19,7 +19,9 @@ describe('US→JP 9-night leg, full resolution', () => {
     await loadSeedRows(db);
 
     const profile: PermanentProfile = {
-      userId: 'u1', citizenships: ['US'], homeCountry: 'US',
+      userId: 'u1',
+      citizenships: [{ country: 'US', passportExpiry: '2029-08-15' }],
+      residence: { country: 'US', visaStatus: null },
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false, extras: {},
     };

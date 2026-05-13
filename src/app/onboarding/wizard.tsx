@@ -33,8 +33,8 @@ export function Wizard() {
     startTransition(async () => {
       try {
         await saveProfileAction({
-          citizenships: next.citizenships,
-          homeCountry: next.homeCountry,
+          citizenships: next.citizenships.map((c) => ({ country: c, passportExpiry: null })),
+          residence: next.homeCountry ? { country: next.homeCountry, visaStatus: null } : null,
           idpConvention: next.drivesAbroad ? next.idpConvention : null,
           idpExpiry: next.drivesAbroad ? next.idpExpiry : null,
           controlledMeds: next.controlledMeds,

@@ -16,7 +16,7 @@ export function buildFacts(
   const idpValid = idpExpiryMs >= endMs;
 
   return {
-    citizenships: profile.citizenships,
+    citizenships: profile.citizenships.map((c) => c.country),
     controlledMeds: profile.controlledMeds,
     hasMinors: profile.hasMinors,
     idp1949Valid: idpValid && profile.idpConvention === '1949',

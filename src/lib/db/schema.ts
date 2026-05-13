@@ -10,8 +10,9 @@ export const users = pgTable('users', {
 
 export const permanentProfile = pgTable('permanent_profile', {
   userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
-  citizenships: text('citizenships').array().notNull().default([]),
-  homeCountry: text('home_country'),
+  citizenships: jsonb('citizenships').$type<{ country: string; passportExpiry: string | null }[]>().notNull().default([]),
+  residenceCountry: text('residence_country'),
+  residenceVisaStatus: text('residence_visa_status'),
   idpConvention: idpConvention('idp_convention'),
   idpExpiry: date('idp_expiry'),
   controlledMeds: text('controlled_meds').array().notNull().default([]),

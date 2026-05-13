@@ -5,10 +5,19 @@ import { eq, and } from 'drizzle-orm';
 import { permanentProfile, tripContext, trip } from '@/lib/db/schema';
 import { ProfileExtras, TripContextExtras } from '@/lib/profile-extras';
 import { Tier1ProfileInput, TripContextInput } from '@/lib/profile-schemas';
-import type { PermanentProfile, TripContext } from '@/lib/user-profile';
+import type { PermanentProfile, TripContext, Residence } from '@/lib/user-profile';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyDb = any;
+
+function readResidence(country: string | null, status: string | null): Residence | null {
+  if (!country) return null;
+  const allowed = ['tourist', 'permanent', 'digital-nomad', 'work', 'other'] as const;
+  const visaStatus = status && (allowed as readonly string[]).includes(status)
+    ? (status as Residence['visaStatus'])
+    : null;
+  return { country, visaStatus };
+}
 
 export async function loadProfile(db: AnyDb, userId: string): Promise<PermanentProfile | null> {
   const rows = await db.select().from(permanentProfile).where(eq(permanentProfile.userId, userId));
@@ -17,8 +26,8 @@ export async function loadProfile(db: AnyDb, userId: string): Promise<PermanentP
   const parsedExtras = ProfileExtras.safeParse(r.extras);
   return {
     userId: r.userId,
-    citizenships: r.citizenships ?? [],
-    homeCountry: r.homeCountry,
+    citizenships: Array.isArray(r.citizenships) ? r.citizenships : [],
+    residence: readResidence(r.residenceCountry, r.residenceVisaStatus),
     idpConvention: r.idpConvention,
     idpExpiry: r.idpExpiry,
     controlledMeds: r.controlledMeds ?? [],
@@ -29,25 +38,28 @@ export async function loadProfile(db: AnyDb, userId: string): Promise<PermanentP
 
 export async function saveProfile(db: AnyDb, userId: string, input: z.input<typeof Tier1ProfileInput>): Promise<void> {
   const parsed = Tier1ProfileInput.parse(input);
-  await db.insert(permanentProfile).values({
+  const values = {
     userId,
     citizenships: parsed.citizenships,
-    homeCountry: parsed.homeCountry,
+    residenceCountry: parsed.residence?.country ?? null,
+    residenceVisaStatus: parsed.residence?.visaStatus ?? null,
     idpConvention: parsed.idpConvention,
     idpExpiry: parsed.idpExpiry,
     controlledMeds: parsed.controlledMeds,
     hasMinors: parsed.hasMinors,
     extras: parsed.extras ?? {},
-  }).onConflictDoUpdate({
+  };
+  await db.insert(permanentProfile).values(values).onConflictDoUpdate({
     target: permanentProfile.userId,
     set: {
-      citizenships: parsed.citizenships,
-      homeCountry: parsed.homeCountry,
-      idpConvention: parsed.idpConvention,
-      idpExpiry: parsed.idpExpiry,
-      controlledMeds: parsed.controlledMeds,
-      hasMinors: parsed.hasMinors,
-      extras: parsed.extras ?? {},
+      citizenships: values.citizenships,
+      residenceCountry: values.residenceCountry,
+      residenceVisaStatus: values.residenceVisaStatus,
+      idpConvention: values.idpConvention,
+      idpExpiry: values.idpExpiry,
+      controlledMeds: values.controlledMeds,
+      hasMinors: values.hasMinors,
+      extras: values.extras,
       updatedAt: new Date(),
     },
   });

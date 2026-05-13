@@ -16,7 +16,7 @@ type AnyDb = any;
 const DEFAULT_PROFILE = (userId: string): PermanentProfile => ({
   userId,
   citizenships: [],
-  homeCountry: null,
+  residence: null,
   idpConvention: null,
   idpExpiry: null,
   controlledMeds: [],

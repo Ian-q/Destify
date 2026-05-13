@@ -1,11 +1,21 @@
 import type { ProfileExtras, TripContextExtras } from './profile-extras';
 
+export type Citizenship = {
+  country: string;            // ISO alpha-2
+  passportExpiry: string | null;  // ISO yyyy-mm-dd or null
+};
+
+export type Residence = {
+  country: string;            // ISO alpha-2
+  visaStatus: 'tourist' | 'permanent' | 'digital-nomad' | 'work' | 'other' | null;
+};
+
 export type PermanentProfile = {
   userId: string;
-  citizenships: string[];
-  homeCountry: string | null;
+  citizenships: Citizenship[];
+  residence: Residence | null;
   idpConvention: '1949' | '1968' | null;
-  idpExpiry: string | null;          // ISO yyyy-mm-dd
+  idpExpiry: string | null;
   controlledMeds: string[];
   hasMinors: boolean;
   extras: ProfileExtras;

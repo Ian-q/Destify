@@ -38,7 +38,8 @@ describe('profile-driven resolution', () => {
     const db = await makeDb();
     const { userId } = await signInDemo(db);
     await saveProfile(db, userId, {
-      citizenships: ['US'], homeCountry: 'US',
+      citizenships: [{ country: 'US', passportExpiry: '2029-08-15' }],
+      residence: { country: 'US', visaStatus: null },
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false,
     });
@@ -51,7 +52,8 @@ describe('profile-driven resolution', () => {
     const db = await makeDb();
     const { userId } = await signInDemo(db);
     await saveProfile(db, userId, {
-      citizenships: ['KE'], homeCountry: 'KE',
+      citizenships: [{ country: 'KE', passportExpiry: null }],
+      residence: { country: 'KE', visaStatus: null },
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false,
     });
@@ -65,14 +67,16 @@ describe('profile-driven resolution', () => {
     const { userId } = await signInDemo(db);
 
     await saveProfile(db, userId, {
-      citizenships: ['US'], homeCountry: 'US',
+      citizenships: [{ country: 'US', passportExpiry: '2029-08-15' }],
+      residence: { country: 'US', visaStatus: null },
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false,
     });
     expect((await resolveFlow(db, 'preflight-jp')).output['n-visa']?.choiceId).toBe('no');
 
     await saveProfile(db, userId, {
-      citizenships: ['KE'], homeCountry: 'KE',
+      citizenships: [{ country: 'KE', passportExpiry: null }],
+      residence: { country: 'KE', visaStatus: null },
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false,
     });

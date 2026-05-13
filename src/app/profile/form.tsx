@@ -17,8 +17,8 @@ const T2 = [
 ];
 
 export function ProfileForm({ initial }: { initial: PermanentProfile | null }) {
-  const [c, setC] = useState<string[]>(initial?.citizenships ?? []);
-  const [home, setHome] = useState<string | null>(initial?.homeCountry ?? null);
+  const [c, setC] = useState<string[]>(initial?.citizenships.map((x) => x.country) ?? []);
+  const [home, setHome] = useState<string | null>(initial?.residence?.country ?? null);
   const [conv, setConv] = useState<'1949' | '1968' | null>(initial?.idpConvention ?? null);
   const [expiry, setExpiry] = useState<string | null>(initial?.idpExpiry ?? null);
   const [meds, setMeds] = useState<string[]>(initial?.controlledMeds ?? []);
@@ -29,7 +29,8 @@ export function ProfileForm({ initial }: { initial: PermanentProfile | null }) {
   const save = () => startTransition(async () => {
     try {
       await saveProfileAction({
-        citizenships: c, homeCountry: home,
+        citizenships: c.map((country) => ({ country, passportExpiry: null })),
+        residence: home ? { country: home, visaStatus: null } : null,
         idpConvention: conv, idpExpiry: expiry,
         controlledMeds: meds, hasMinors,
       });
