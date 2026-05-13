@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { TRIP, type DocState, type FlowNode, type FlowChoice } from "@/lib/trip-data";
-import type { ResolverOutput } from "@/lib/rules/types";
+import type { ResolverOutput, ResolvedInfo } from "@/lib/rules/types";
 
 type FlowState = Record<string, boolean>; // node-id -> done?
 type FlowChoiceState = Record<string, string>; // node-id -> chosen choice id
@@ -20,6 +20,7 @@ type State = {
   flowChoices: Record<string, FlowChoiceState>; // flow id -> choices
   flowResolved: Record<string, Record<string, { choiceId: string; ruleId: string; reason: string }>>;
   flowOverrides: Record<string, Record<string, string>>;
+  flowInfo: Record<string, Record<string, ResolvedInfo>>;
 };
 
 type Actions = {
@@ -62,6 +63,7 @@ export const useTripStore = create<State & Actions>((set) => ({
   flowChoices: initialFlowChoices,
   flowResolved: {},
   flowOverrides: {},
+  flowInfo: {},
 
   selectDay: (i) => set({ selectedDay: i }),
   setActiveItem: (id) => set({ activeItemId: id }),
@@ -134,6 +136,7 @@ export const useTripStore = create<State & Actions>((set) => ({
       return {
         flowChoices: { ...s.flowChoices, [flowId]: flowSpecificChoices },
         flowResolved: { ...s.flowResolved, [flowId]: output.choices },
+        flowInfo: { ...s.flowInfo, [flowId]: output.info },
       };
     }),
 }));

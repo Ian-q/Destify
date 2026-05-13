@@ -25,6 +25,7 @@ function freshStore(): void {
     flowChoices: initialChoices,
     flowResolved: {},
     flowOverrides: {},
+    flowInfo: {},
   });
 }
 
@@ -108,5 +109,76 @@ describe('applyResolution', () => {
     });
     // Override wins even though the auto says 'no'.
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-visa']).toBe('yes');
+  });
+});
+
+describe('applyResolution — flowInfo round-trip', () => {
+  beforeEach(freshStore);
+
+  it('writes the new info entry into flowInfo', () => {
+    const { applyResolution } = useTripStore.getState();
+    applyResolution('preflight-jp', {
+      choices: {},
+      info: {
+        'n-pass': {
+          title: 'US Passport · valid Aug 2029',
+          desc:  'Japan requires 6 months past return…',
+          meta:  'Auto-checked from profile',
+          state: 'pass',
+          ruleId: 'jp.preflight.pass.valid',
+          reason: 'US passport expires 2029-08-15, ≥ 6mo after return',
+        },
+      },
+    });
+    expect(useTripStore.getState().flowInfo['preflight-jp']?.['n-pass']).toEqual({
+      title: 'US Passport · valid Aug 2029',
+      desc:  'Japan requires 6 months past return…',
+      meta:  'Auto-checked from profile',
+      state: 'pass',
+      ruleId: 'jp.preflight.pass.valid',
+      reason: 'US passport expires 2029-08-15, ≥ 6mo after return',
+    });
+  });
+
+  it('replaces flowInfo wholesale when output.info changes', () => {
+    const { applyResolution } = useTripStore.getState();
+    applyResolution('preflight-jp', {
+      choices: {},
+      info: {
+        'n-pass': {
+          title: 'US Passport · valid Aug 2029',
+          desc: 'old', meta: '', state: 'pass',
+          ruleId: 'jp.preflight.pass.valid', reason: '',
+        },
+      },
+    });
+    applyResolution('preflight-jp', {
+      choices: {},
+      info: {
+        'n-pass': {
+          title: 'MY Passport · valid Jan 2030',
+          desc: 'new', meta: '', state: 'pass',
+          ruleId: 'jp.preflight.pass.valid', reason: '',
+        },
+      },
+    });
+    expect(useTripStore.getState().flowInfo['preflight-jp']['n-pass'].title)
+      .toBe('MY Passport · valid Jan 2030');
+  });
+
+  it('clears stale info entries when re-resolve omits them', () => {
+    const { applyResolution } = useTripStore.getState();
+    applyResolution('preflight-jp', {
+      choices: {},
+      info: {
+        'n-pass': {
+          title: 'US Passport · valid Aug 2029',
+          desc: '', meta: '', state: 'pass',
+          ruleId: 'jp.preflight.pass.valid', reason: '',
+        },
+      },
+    });
+    applyResolution('preflight-jp', { choices: {}, info: {} });
+    expect(useTripStore.getState().flowInfo['preflight-jp']).toEqual({});
   });
 });
