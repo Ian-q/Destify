@@ -82,4 +82,53 @@ describe('profile-driven resolution', () => {
     });
     expect((await resolveFlow(db, 'preflight-jp')).output.choices['n-visa']).toBeUndefined();
   });
+
+  it('emits n-pass info with the primary citizenship and pass state', async () => {
+    const db = await makeDb();
+    const { userId } = await signInDemo(db);
+    await saveProfile(db, userId, {
+      citizenships: [{ country: 'US', passportExpiry: '2029-08-15' }],
+      residence: { country: 'US', visaStatus: null },
+      idpConvention: null, idpExpiry: null,
+      controlledMeds: [], hasMinors: false,
+    });
+
+    const { output } = await resolveFlow(db, 'preflight-jp');
+    expect(output.info['n-pass']).toBeDefined();
+    expect(output.info['n-pass'].state).toBe('pass');
+    expect(output.info['n-pass'].title).toMatch(/^US Passport · valid /);
+  });
+
+  it('emits a no-expiry warn when primary citizenship lacks passportExpiry (KE)', async () => {
+    const db = await makeDb();
+    const { userId } = await signInDemo(db);
+    await saveProfile(db, userId, {
+      citizenships: [{ country: 'KE', passportExpiry: null }],
+      residence: { country: 'KE', visaStatus: null },
+      idpConvention: null, idpExpiry: null,
+      controlledMeds: [], hasMinors: false,
+    });
+
+    const { output } = await resolveFlow(db, 'preflight-jp');
+    expect(output.info['n-pass']).toBeDefined();
+    expect(output.info['n-pass'].state).toBe('warn');
+    expect(output.info['n-pass'].ruleId).toBe('jp.preflight.pass.no-expiry');
+    expect(output.info['n-pass'].title).toBe('KE Passport · expiry unknown');
+  });
+
+  it('emits a missing-citizenship warn when profile has zero citizenships', async () => {
+    const db = await makeDb();
+    const { userId } = await signInDemo(db);
+    await saveProfile(db, userId, {
+      citizenships: [],
+      residence: null,
+      idpConvention: null, idpExpiry: null,
+      controlledMeds: [], hasMinors: false,
+    });
+
+    const { output } = await resolveFlow(db, 'preflight-jp');
+    expect(output.info['n-pass']).toBeDefined();
+    expect(output.info['n-pass'].state).toBe('warn');
+    expect(output.info['n-pass'].ruleId).toBe('jp.preflight.pass.missing');
+  });
 });
