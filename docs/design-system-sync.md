@@ -1,4 +1,4 @@
-# Design system sync — Destify
+# Design system sync — Destified
 
 Tracker for porting the Claude Design handoff bundle into the Next.js app.
 Source of truth: `arakYu2RS32LF9xA0UYRFg` design package
@@ -23,7 +23,7 @@ Source of truth: `arakYu2RS32LF9xA0UYRFg` design package
 
 ## Skipped on purpose
 
-- Big animated `Destify` hero on `/` landing — kept on serif since it's an
+- Big animated `Destified` hero on `/` landing — kept on serif since it's an
   artistic treatment Greesh tuned to serif metrics. Revisit if unification matters.
 - Action-node gradient stops (`#F4E1CC → #FBEDDF` vs current `#FBEDDF → cream`) —
   borderline difference, leaving as-is.
