@@ -16,7 +16,8 @@ export function buildFacts(
   const idpValid = idpExpiryMs >= endMs;
 
   return {
-    citizenships: profile.citizenships.map((c) => c.country),
+    citizenships: profile.citizenships,
+    residence: profile.residence,
     controlledMeds: profile.controlledMeds,
     hasMinors: profile.hasMinors,
     idp1949Valid: idpValid && profile.idpConvention === '1949',
@@ -27,6 +28,7 @@ export function buildFacts(
     fromCountry: leg.from,
     toCountry: leg.to,
     stayDays,
+    leg,
     tables: hydrated.tables ?? {},
   };
 }

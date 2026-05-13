@@ -1,4 +1,5 @@
 import type { RowOf, RowType } from '@/lib/conditions/registry';
+import type { Citizenship, Residence } from '@/lib/user-profile';
 
 export type Leg = {
   from: string; to: string;
@@ -6,7 +7,8 @@ export type Leg = {
 };
 
 export type Facts = {
-  citizenships: string[];
+  citizenships: Citizenship[];
+  residence: Residence | null;
   controlledMeds: string[];
   hasMinors: boolean;
   idp1949Valid: boolean;
@@ -17,6 +19,7 @@ export type Facts = {
   fromCountry: string;
   toCountry: string;
   stayDays: number;
+  leg: Leg;
   tables: { [K in RowType]?: Record<string, RowOf<K>> };
 };
 
@@ -26,5 +29,18 @@ export type ResolvedChoice = {
   reason: string;
 };
 
-export type ResolverOutput = Record<string, ResolvedChoice>;
+export type ResolvedInfo = {
+  title: string;
+  desc: string;
+  meta?: string;
+  state: 'pass' | 'warn' | 'fail';
+  ruleId: string;
+  reason: string;
+};
+
+export type ResolverOutput = {
+  choices: Record<string, ResolvedChoice>;
+  info:    Record<string, ResolvedInfo>;
+};
+
 export type FlowResolver = (facts: Facts) => ResolverOutput;

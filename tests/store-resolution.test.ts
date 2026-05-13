@@ -34,7 +34,8 @@ describe('applyResolution', () => {
   it('writes a new auto-resolution into flowChoices and flowResolved', () => {
     const { applyResolution } = useTripStore.getState();
     applyResolution('preflight-jp', {
-      'n-visa': { choiceId: 'no', ruleId: 'jp.preflight.visa.us-exempt', reason: 'US passport, exempt' },
+      choices: { 'n-visa': { choiceId: 'no', ruleId: 'jp.preflight.visa.us-exempt', reason: 'US passport, exempt' } },
+      info: {},
     });
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-visa']).toBe('no');
     expect(useTripStore.getState().flowResolved['preflight-jp']['n-visa']).toEqual({
@@ -51,12 +52,13 @@ describe('applyResolution', () => {
     // happens to also be the default, hiding the bug.
     const { applyResolution } = useTripStore.getState();
     applyResolution('preflight-jp', {
-      'n-visa': { choiceId: 'yes', ruleId: 'visa-required-test', reason: 'test fixture' },
+      choices: { 'n-visa': { choiceId: 'yes', ruleId: 'visa-required-test', reason: 'test fixture' } },
+      info: {},
     });
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-visa']).toBe('yes');
 
     // Now: re-resolve with empty output (no rule fired for the new citizenship).
-    applyResolution('preflight-jp', {});
+    applyResolution('preflight-jp', { choices: {}, info: {} });
 
     // flowChoices['n-visa'] must revert to the trip-data default ('no'), not stay on 'yes'.
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-visa'])
@@ -68,10 +70,12 @@ describe('applyResolution', () => {
   it('switches a node from one auto-resolution to another', () => {
     const { applyResolution } = useTripStore.getState();
     applyResolution('preflight-jp', {
-      'n-visa': { choiceId: 'no', ruleId: 'visa-exempt', reason: '' },
+      choices: { 'n-visa': { choiceId: 'no', ruleId: 'visa-exempt', reason: '' } },
+      info: {},
     });
     applyResolution('preflight-jp', {
-      'n-visa': { choiceId: 'yes', ruleId: 'visa-required', reason: '' },
+      choices: { 'n-visa': { choiceId: 'yes', ruleId: 'visa-required', reason: '' } },
+      info: {},
     });
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-visa']).toBe('yes');
   });
@@ -82,13 +86,14 @@ describe('applyResolution', () => {
     setFlowChoice('preflight-jp', 'n-meds', 'yes-common');
 
     applyResolution('preflight-jp', {
-      'n-visa': { choiceId: 'no', ruleId: 'us', reason: '' },
+      choices: { 'n-visa': { choiceId: 'no', ruleId: 'us', reason: '' } },
+      info: {},
     });
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-meds']).toBe('yes-common');
 
     // Re-resolve with a different output that omits n-visa entirely but doesn't include n-meds either.
     // The default-matching-coincidence of n-visa here doesn't break the assertion; we're testing that n-meds is untouched.
-    applyResolution('preflight-jp', {});
+    applyResolution('preflight-jp', { choices: {}, info: {} });
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-meds']).toBe('yes-common');
   });
 
@@ -98,7 +103,8 @@ describe('applyResolution', () => {
       flowOverrides: { 'preflight-jp': { 'n-visa': 'yes' } },
     });
     applyResolution('preflight-jp', {
-      'n-visa': { choiceId: 'no', ruleId: 'us-exempt', reason: '' },
+      choices: { 'n-visa': { choiceId: 'no', ruleId: 'us-exempt', reason: '' } },
+      info: {},
     });
     // Override wins even though the auto says 'no'.
     expect(useTripStore.getState().flowChoices['preflight-jp']['n-visa']).toBe('yes');

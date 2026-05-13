@@ -13,7 +13,7 @@ export const REGISTRY: Record<string, FlowEntry> = {
   'preflight-jp': {
     resolver: resolvePreflightJP,
     requiredRows: (f) => [
-      ...f.citizenships.map((c) => ({ type: 'visa_exemption' as const, key: `${c}:${f.toCountry}` })),
+      ...f.citizenships.map((c) => ({ type: 'visa_exemption' as const, key: `${c.country}:${f.toCountry}` })),
       { type: 'med_import' as const, key: f.toCountry },
       { type: 'driving' as const,    key: f.toCountry },
     ],
@@ -27,14 +27,14 @@ export function resolveFlow(
   leg: Leg,
   hydrated: { tables?: Facts['tables'] } = {},
 ): ResolverOutput {
-  if (!profile || !context) return {};
+  if (!profile || !context) return { choices: {}, info: {} };
   const entry = REGISTRY[flowId];
-  if (!entry) return {};
+  if (!entry) return { choices: {}, info: {} };
   try {
     return entry.resolver(buildFacts(profile, context, leg, hydrated));
   } catch (err) {
     console.error(`[rules] resolver for ${flowId} threw:`, err);
-    return {};
+    return { choices: {}, info: {} };
   }
 }
 

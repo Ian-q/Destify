@@ -34,10 +34,11 @@ describe('US→JP 9-night leg, full resolution', () => {
     const { facts } = await hydrateLeg(profile, context, leg, { flowId: 'preflight-jp', db });
     const out = resolveFlow('preflight-jp', profile, context, leg, { tables: facts.tables });
 
-    expect(out['n-visa'].choiceId).toBe('no');
-    expect(out['n-visa'].ruleId).toBe('jp.preflight.visa.us-exempt');
-    expect(out['n-meds'].choiceId).toBe('no');
-    expect(out['n-kids'].choiceId).toBe('no');
-    expect(out['n-drive'].choiceId).toBe('no');
+    expect(out.choices['n-visa'].choiceId).toBe('no');
+    expect(out.choices['n-visa'].ruleId).toBe('jp.preflight.visa.us-exempt');
+    expect(out.choices['n-meds'].choiceId).toBe('no');
+    expect(out.choices['n-kids'].choiceId).toBe('no');
+    expect(out.choices['n-drive'].choiceId).toBe('no');
+    expect(out.info).toEqual({});  // No info nodes emitted yet — Task 3 adds n-pass
   });
 });

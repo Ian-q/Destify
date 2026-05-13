@@ -32,7 +32,7 @@ type Actions = {
   toggleFlowDone: (flowId: string, nodeId: string) => void;
   setFlowChoice: (flowId: string, nodeId: string, choiceId: string) => void;
   resetFlowChoices: (flowId: string) => void;
-  applyResolution: (flowId: string, output: Record<string, { choiceId: string; ruleId: string; reason: string }>) => void;
+  applyResolution: (flowId: string, output: { choices: Record<string, { choiceId: string; ruleId: string; reason: string }>; info: Record<string, { title: string; desc: string; meta?: string; state: 'pass' | 'warn' | 'fail'; ruleId: string; reason: string }> }) => void;
 };
 
 const initialDocs = Object.fromEntries(TRIP.docs.map((d) => [d.id, d.state]));
@@ -116,9 +116,8 @@ export const useTripStore = create<State & Actions>((set) => ({
 
       // Restore previously-auto-resolved nodes that the new output drops
       // (and aren't user-overridden) back to their trip-data defaults.
-      // Without this, a stale auto value persists when a profile change makes a rule stop firing.
       for (const nodeId of Object.keys(previousResolved)) {
-        if (nodeId in output) continue;
+        if (nodeId in output.choices) continue;
         if (nodeId in overrides) continue;
         const node = flow.nodes.find((n) => n.id === nodeId);
         if (node?.choices) {
@@ -127,13 +126,13 @@ export const useTripStore = create<State & Actions>((set) => ({
         }
       }
 
-      for (const [nodeId, resolved] of Object.entries(output)) {
+      for (const [nodeId, resolved] of Object.entries(output.choices)) {
         flowSpecificChoices[nodeId] = overrides[nodeId] ?? resolved.choiceId;
       }
 
       return {
         flowChoices: { ...s.flowChoices, [flowId]: flowSpecificChoices },
-        flowResolved: { ...s.flowResolved, [flowId]: output },
+        flowResolved: { ...s.flowResolved, [flowId]: output.choices },
       };
     }),
 }));

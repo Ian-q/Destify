@@ -45,7 +45,7 @@ describe('profile-driven resolution', () => {
     });
 
     const { output } = await resolveFlow(db, 'preflight-jp');
-    expect(output['n-visa']?.choiceId).toBe('no');
+    expect(output.choices['n-visa']?.choiceId).toBe('no');
   });
 
   it('KE citizenship does not auto-resolve n-visa (no seed row, AI mock returns null)', async () => {
@@ -59,7 +59,7 @@ describe('profile-driven resolution', () => {
     });
 
     const { output } = await resolveFlow(db, 'preflight-jp');
-    expect(output['n-visa']).toBeUndefined();
+    expect(output.choices['n-visa']).toBeUndefined();
   });
 
   it('flipping citizenship from US to KE removes auto-resolution', async () => {
@@ -72,7 +72,7 @@ describe('profile-driven resolution', () => {
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false,
     });
-    expect((await resolveFlow(db, 'preflight-jp')).output['n-visa']?.choiceId).toBe('no');
+    expect((await resolveFlow(db, 'preflight-jp')).output.choices['n-visa']?.choiceId).toBe('no');
 
     await saveProfile(db, userId, {
       citizenships: [{ country: 'KE', passportExpiry: null }],
@@ -80,6 +80,6 @@ describe('profile-driven resolution', () => {
       idpConvention: null, idpExpiry: null,
       controlledMeds: [], hasMinors: false,
     });
-    expect((await resolveFlow(db, 'preflight-jp')).output['n-visa']).toBeUndefined();
+    expect((await resolveFlow(db, 'preflight-jp')).output.choices['n-visa']).toBeUndefined();
   });
 });

@@ -1,30 +1,30 @@
 import type { FlowResolver, ResolverOutput } from '../types';
 
 export const resolvePreflightJP: FlowResolver = (f): ResolverOutput => {
-  const out: ResolverOutput = {};
+  const out: ResolverOutput = { choices: {}, info: {} };
 
   // n-visa — table-driven across citizenships
   for (const c of f.citizenships) {
-    const visa = f.tables.visa_exemption?.[`${c}:${f.toCountry}`];
+    const visa = f.tables.visa_exemption?.[`${c.country}:${f.toCountry}`];
     if (visa && visa.exemptDays !== null && f.stayDays <= visa.exemptDays) {
-      out['n-visa'] = {
+      out.choices['n-visa'] = {
         choiceId: 'no',
-        ruleId:   `jp.preflight.visa.${c.toLowerCase()}-exempt`,
-        reason:   `${c} passport, ${f.stayDays}-night stay → visa-exempt up to ${visa.exemptDays} days`,
+        ruleId:   `jp.preflight.visa.${c.country.toLowerCase()}-exempt`,
+        reason:   `${c.country} passport, ${f.stayDays}-night stay → visa-exempt up to ${visa.exemptDays} days`,
       };
       break;
     }
   }
 
-  // n-meds — same as rule layer spec
+  // n-meds
   if (f.carryingControlledMeds && f.controlledMeds.length > 0) {
-    out['n-meds'] = {
+    out.choices['n-meds'] = {
       choiceId: 'yes-controlled',
       ruleId:   'jp.preflight.meds.controlled',
       reason:   `${f.controlledMeds.join(', ')} requires a Yakkan Shoumei import certificate`,
     };
   } else if (f.carryingControlledMeds === false) {
-    out['n-meds'] = {
+    out.choices['n-meds'] = {
       choiceId: 'no',
       ruleId:   'jp.preflight.meds.none',
       reason:   'No prescription meds declared for this trip',
@@ -33,22 +33,22 @@ export const resolvePreflightJP: FlowResolver = (f): ResolverOutput => {
 
   // n-kids
   if (f.travelingWithMinors === false) {
-    out['n-kids'] = {
+    out.choices['n-kids'] = {
       choiceId: 'no',
       ruleId:   'jp.preflight.kids.none',
       reason:   'No minors on this trip',
     };
   }
 
-  // n-drive — IDP logic stays in TS
+  // n-drive — IDP logic
   if (f.drivingAtDestination === false) {
-    out['n-drive'] = {
+    out.choices['n-drive'] = {
       choiceId: 'no',
       ruleId:   'jp.preflight.drive.no',
       reason:   'Not driving in Japan — trains only',
     };
   } else if (f.drivingAtDestination && f.idp1949Valid) {
-    out['n-drive'] = {
+    out.choices['n-drive'] = {
       choiceId: 'yes',
       ruleId:   'jp.preflight.drive.idp1949',
       reason:   'Driving in Japan; you have a valid 1949-convention IDP',
