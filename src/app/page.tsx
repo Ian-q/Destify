@@ -62,10 +62,16 @@ const FLOWING_ROWS = [
 const IMG_DURATION = 900; // ms each city is shown
 const IMGS_END = IMG_DURATION * CITIES.length; // 4500ms
 
+const prefersReducedMotionAtMount = (): boolean =>
+  typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export default function LandingPage() {
-  const [phase, setPhase] = useState<Phase>(0);
+  // Mount directly at phase 4 when the user prefers reduced motion, so we never
+  // schedule any animation timers and avoid a synchronous setState-in-effect.
+  const [phase, setPhase] = useState<Phase>(() => (prefersReducedMotionAtMount() ? 4 : 0));
   const [imgIdx, setImgIdx]     = useState(0);
-  const [imgVisible, setImgVisible] = useState(true);
+  const [imgVisible, setImgVisible] = useState(() => !prefersReducedMotionAtMount());
 
   useEffect(() => {
     document.body.style.overflow = phase < 4 ? "hidden" : "";
@@ -75,12 +81,9 @@ export default function LandingPage() {
   const skipFnRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    const prefersReduced = typeof window !== 'undefined'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) {
-      setImgVisible(false);
-      setPhase(4);
-      return; // no timers, no keydown listener
+    if (prefersReducedMotionAtMount()) {
+      // Already at phase 4 from the initial state; no timers or listeners to register.
+      return;
     }
 
     const timers: ReturnType<typeof setTimeout>[] = [];
