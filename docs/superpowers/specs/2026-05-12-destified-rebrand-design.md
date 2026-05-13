@@ -163,6 +163,23 @@ Per saved feedback memory, UI features require a browser walkthrough before push
 - `npm run lint` — no new errors (the 2 pre-existing errors in `login/page.tsx` stay).
 - `npm run build` — success.
 
+## External rename steps (manual, outside the PR)
+
+The PR ships the codebase rename. Two manual settings tweaks happen separately, by you:
+
+**GitHub repo rename** (`Ian-q/Destify` → `Ian-q/Destified`):
+- Run `gh repo rename Destified` from the local checkout, or do it via the repo Settings page.
+- GitHub auto-redirects all old URLs (clones, issue links, web requests) indefinitely. The three existing spec docs that reference `github.com/Ian-q/Destify/issues/*` keep working without edits.
+- Update the local git remote URL: `git remote set-url origin git@github.com:Ian-q/Destified.git` (cosmetic; the redirect would handle pushes either way).
+
+**Vercel project rename** (`destify` → `destified`):
+- Done in the Vercel dashboard → Project Settings → General → Project Name. Or via `vercel project rename` if you have the CLI logged in.
+- The Vercel project ID (`prj_5XLTlMQZFm8DmjRBXiA0XDIgDfrw`, captured in the gitignored `.vercel/repo.json`) stays stable across rename. No file change needed.
+- The auto-generated production URL changes from `destify-*.vercel.app` to `destified-*.vercel.app`. Nothing in the codebase references those URLs (verified by grep), so no code update.
+- Environment variables, integrations, deployment hooks: unaffected.
+
+Neither rename is a code change — they're settings tweaks. Do them whenever convenient; the PR doesn't depend on them.
+
 ## Out of scope
 
 - Domain purchase / DNS configuration — separate.
