@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveProfileAction } from "@/lib/profile-actions";
 import { COUNTRIES } from "@/lib/iso-countries";
-import { toast } from "@/components/destify/toast";
+import { toast } from "@/components/destified/toast";
 
 type Tier1 = {
   citizenships: { country: string; passportExpiry: string | null }[];

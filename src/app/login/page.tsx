@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, MapPin } from "lucide-react";
-import { toast } from "@/components/destify/toast";
+import { toast } from "@/components/destified/toast";
 import { signInDemoAction } from "@/lib/auth-actions";
 
 type Mode = "signin" | "signup";

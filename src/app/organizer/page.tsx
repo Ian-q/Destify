@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
 import { eq, desc } from 'drizzle-orm';
-import { TopBar } from "@/components/destify/topbar";
-import { TripHeader } from "@/components/destify/trip-header";
-import { TimelinePanel } from "@/components/destify/timeline-panel";
-import { RouteMap } from "@/components/destify/route-map";
-import { RightRail } from "@/components/destify/right-rail";
-import { FlowModal } from "@/components/destify/flow-modal";
+import { TopBar } from "@/components/destified/topbar";
+import { TripHeader } from "@/components/destified/trip-header";
+import { TimelinePanel } from "@/components/destified/timeline-panel";
+import { RouteMap } from "@/components/destified/route-map";
+import { RightRail } from "@/components/destified/right-rail";
+import { FlowModal } from "@/components/destified/flow-modal";
 import { getSessionUserId } from "@/lib/session";
 import { getProfileAction, getTripContextAction } from "@/lib/profile-actions";
 import { db } from "@/lib/db/client";

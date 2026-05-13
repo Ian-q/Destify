@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles, Clock } from "lucide-react";
-import { toast } from "@/components/destify/toast";
+import { toast } from "@/components/destified/toast";
 import { AvatarMenu } from "./avatar-menu";
 
 const TABS = [

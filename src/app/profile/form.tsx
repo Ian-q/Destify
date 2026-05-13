@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { saveProfileAction } from "@/lib/profile-actions";
 import { COUNTRIES } from "@/lib/iso-countries";
-import { toast } from "@/components/destify/toast";
+import { toast } from "@/components/destified/toast";
 import type { PermanentProfile } from "@/lib/user-profile";
 
 const T2 = [

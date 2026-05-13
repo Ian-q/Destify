@@ -2,7 +2,7 @@
 
 import { TRIP, type DocItem, type Hotel } from "@/lib/trip-data";
 import { useTripStore } from "@/lib/use-trip-store";
-import { toast } from "@/components/destify/toast";
+import { toast } from "@/components/destified/toast";
 import { Check, AlertTriangle, ArrowRight, ExternalLink } from "lucide-react";
 
 export function RightRail() {
