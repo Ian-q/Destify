@@ -478,8 +478,14 @@ function PillNode({ data }: NodeProps<Node<NodeData>>) {
 }
 
 function RectNode({ data }: NodeProps<Node<NodeData>>) {
-  const { toggleFlowDone } = useTripStore();
+  const { toggleFlowDone, flowInfo } = useTripStore();
   const size = NODE_SIZE[data.kind];
+
+  const info = data.kind === "info" ? flowInfo[data.flowId]?.[data.id] : undefined;
+  const title = info?.title ?? data.title;
+  const desc = info?.desc ?? data.desc;
+  const meta = info?.meta ?? data.meta;
+  const state = info?.state;
 
   const bg =
     data.kind === "action"
@@ -521,28 +527,35 @@ function RectNode({ data }: NodeProps<Node<NodeData>>) {
       </button>
 
       <div
-        className="text-[10px] uppercase tracking-[0.12em]"
+        className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em]"
         style={{ color: "var(--mocha)" }}
       >
+        {(state === "warn" || state === "fail") && (
+          <span
+            aria-hidden
+            className="inline-block h-1.5 w-1.5 rounded-full"
+            style={{ background: "#C07856" }}
+          />
+        )}
         {data.label}
       </div>
       <div className="mt-1 text-[13.5px] font-semibold leading-snug tracking-tight">
-        {data.title}
+        {title}
       </div>
-      {data.desc && (
+      {desc && (
         <div
           className="mt-1.5 line-clamp-3 text-[11.5px] leading-snug"
           style={{ color: "var(--charcoal-soft)" }}
         >
-          {data.desc}
+          {desc}
         </div>
       )}
-      {data.meta && (
+      {meta && (
         <div
           className="mt-1.5 font-mono text-[10.5px]"
           style={{ color: "var(--mocha)" }}
         >
-          {data.meta}
+          {meta}
         </div>
       )}
       {data.link && (

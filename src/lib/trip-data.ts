@@ -233,7 +233,7 @@ const tokyoTrip: Trip = {
       endId: "end",
       nodes: [
         { id: "start", kind: "start", x: 1140, y: 60, w: 200, label: "Pre-flight", title: "Begin checklist · SFO → HND", next: "n-pass" },
-        { id: "n-pass", kind: "info", x: 1130, y: 220, label: "Identity · auto", title: "US Passport · valid Aug 2029", desc: "Japan requires 6 months past return — you have 3+ years. ✓ passed.", meta: "Auto-checked from profile", done: true, next: "n-visa" },
+        { id: "n-pass", kind: "info", x: 1130, y: 220, label: "Identity", title: "Identity · pending", desc: "Auto-checks once your profile loads.", meta: "", done: false, next: "n-visa" },
         { id: "n-visa", kind: "decision", x: 1120, y: 420, label: "Decision · Entry", title: "Need a Japan visa?", desc: "US passport, 9-night stay → visa-exempt up to 90 days.", choices: [
           { id: "no", label: "No · exempt", on: true, to: "n-vjw" },
           { id: "yes", label: "Yes · apply", to: "n-visa-apply" },
