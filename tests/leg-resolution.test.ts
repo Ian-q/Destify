@@ -39,6 +39,9 @@ describe('US→JP 9-night leg, full resolution', () => {
     expect(out.choices['n-meds'].choiceId).toBe('no');
     expect(out.choices['n-kids'].choiceId).toBe('no');
     expect(out.choices['n-drive'].choiceId).toBe('no');
-    expect(out.info).toEqual({});  // No info nodes emitted yet — Task 3 adds n-pass
+    // Task 3: n-pass info card now emitted
+    expect(out.info['n-pass']).toBeDefined();
+    expect(out.info['n-pass'].state).toBe('pass');
+    expect(out.info['n-pass'].ruleId).toBe('jp.preflight.pass.valid');
   });
 });
