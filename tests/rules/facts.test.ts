@@ -4,7 +4,9 @@ import type { PermanentProfile, TripContext } from '@/lib/user-profile';
 import type { Leg } from '@/lib/rules/types';
 
 const profile: PermanentProfile = {
-  userId: 'u1', citizenships: ['US'], homeCountry: 'US',
+  userId: 'u1',
+  citizenships: [{ country: 'US', passportExpiry: '2029-08-15' }],
+  residence: { country: 'US', visaStatus: null },
   idpConvention: '1949', idpExpiry: '2030-01-01',
   controlledMeds: [], hasMinors: false, extras: {},
 };
