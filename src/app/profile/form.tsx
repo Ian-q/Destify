@@ -28,9 +28,10 @@ export function ProfileForm({ initial }: { initial: PermanentProfile | null }) {
 
   const save = () => startTransition(async () => {
     try {
+      const priorByCountry = new Map((initial?.citizenships ?? []).map((x) => [x.country, x.passportExpiry] as const));
       await saveProfileAction({
-        citizenships: c.map((country) => ({ country, passportExpiry: null })),
-        residence: home ? { country: home, visaStatus: null } : null,
+        citizenships: c.map((country) => ({ country, passportExpiry: priorByCountry.get(country) ?? null })),
+        residence: home ? { country: home, visaStatus: home === initial?.residence?.country ? (initial?.residence?.visaStatus ?? null) : null } : null,
         idpConvention: conv, idpExpiry: expiry,
         controlledMeds: meds, hasMinors,
       });

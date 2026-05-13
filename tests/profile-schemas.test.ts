@@ -93,4 +93,8 @@ describe('TripContextInput', () => {
   it('rejects an unknown purpose', () => {
     expect(TripContextInput.safeParse({ ...valid, purpose: 'pilgrimage' }).success).toBe(false);
   });
+
+  it('rejects unknown top-level fields (strict)', () => {
+    expect(TripContextInput.safeParse({ ...valid, hackField: true }).success).toBe(false);
+  });
 });

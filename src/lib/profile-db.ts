@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { permanentProfile, tripContext, trip } from '@/lib/db/schema';
 import { ProfileExtras, TripContextExtras } from '@/lib/profile-extras';
-import { Tier1ProfileInput, TripContextInput } from '@/lib/profile-schemas';
+import { CitizenshipInput, Tier1ProfileInput, TripContextInput } from '@/lib/profile-schemas';
 import type { PermanentProfile, TripContext, Residence } from '@/lib/user-profile';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,9 +24,15 @@ export async function loadProfile(db: AnyDb, userId: string): Promise<PermanentP
   if (rows.length === 0) return null;
   const r = rows[0];
   const parsedExtras = ProfileExtras.safeParse(r.extras);
+  const rawCitizenships: unknown[] = Array.isArray(r.citizenships) ? r.citizenships : [];
+  const citizenships: z.infer<typeof CitizenshipInput>[] = [];
+  for (const entry of rawCitizenships) {
+    const parsed = CitizenshipInput.safeParse(entry);
+    if (parsed.success) citizenships.push(parsed.data);
+  }
   return {
     userId: r.userId,
-    citizenships: Array.isArray(r.citizenships) ? r.citizenships : [],
+    citizenships,
     residence: readResidence(r.residenceCountry, r.residenceVisaStatus),
     idpConvention: r.idpConvention,
     idpExpiry: r.idpExpiry,
