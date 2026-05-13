@@ -844,12 +844,13 @@ function FlightNetwork() {
       {routes.map(([from, to], i) => {
         const a = cityMap[from], b = cityMap[to];
         if (!a || !b) return null;
-        const mx = (a.x + b.x) / 2;
+        const mx = ((a.x + b.x) / 2).toFixed(3);
         const my = (a.y + b.y) / 2;
         const dist = Math.hypot(b.x - a.x, b.y - a.y);
         const lift = Math.min(dist * 0.22, 55);
+        const cy = (my - lift).toFixed(3);
         return (
-          <path key={i} d={`M ${a.x} ${a.y} Q ${mx} ${my - lift} ${b.x} ${b.y}`}
+          <path key={i} d={`M ${a.x} ${a.y} Q ${mx} ${cy} ${b.x} ${b.y}`}
             stroke="currentColor" strokeWidth="0.6" strokeDasharray="2.5 3.5" fill="none" />
         );
       })}
