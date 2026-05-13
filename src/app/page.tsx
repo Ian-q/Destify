@@ -3,13 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock3, CheckSquare2, Map, Sparkles, Plane } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 
-// 0 = initial hidden
-// 1 = words visible
-// 2 = converging
-// 3 = destify visible
-// 4 = hero content revealed
+// Animation phases:
+//   0 = city marquee
+//   1 = tagline fades in (stacked)
+//   2 = tagline flattens to a single horizontal row
+//   3 = letters shuffle into the Destified wordmark
+//   4 = nav + CTAs visible (final state)
 type Phase = 0 | 1 | 2 | 3 | 4;
+
+const DEST_CHARS = 'Destinations,'.split('');           // 13 chars (incl. comma)
+const SIMP_CHARS = 'simplified'.split('');               // 10 chars
+const DEST_SURVIVOR_INDICES = new Set([0, 1, 2, 3]);     // D, e, s, t
+const SIMP_SURVIVOR_INDICES = new Set([5, 6, 7, 8, 9]);  // i, f, i, e, d
 
 const CITIES = [
   {
@@ -68,6 +75,14 @@ export default function LandingPage() {
   const skipFnRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
+    const prefersReduced = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      setImgVisible(false);
+      setPhase(4);
+      return; // no timers, no keydown listener
+    }
+
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     // Cycle through city images
@@ -107,15 +122,6 @@ export default function LandingPage() {
   return (
     <>
       <style>{`
-        @keyframes destify-bloom {
-          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.42); filter: blur(6px); }
-          55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); filter: blur(0px); }
-          100% { opacity: 1; transform: translate(-50%, -50%) scale(1);    filter: blur(0px); }
-        }
-        @keyframes ring-out {
-          0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
-          100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0;   }
-        }
         @keyframes scroll-bob {
           0%, 100% { transform: translateY(0);   opacity: 0.45; }
           50%       { transform: translateY(7px); opacity: 0.7;  }
@@ -346,112 +352,113 @@ export default function LandingPage() {
         <div
           onClick={() => skipFnRef.current?.()}
           style={{
-            position: "relative",
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             zIndex: 2,
-            width: "100%",
+            width: '100%',
             maxWidth: 960,
             height: 220,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: phase < 4 ? 'pointer' : 'default',
           }}
         >
+          {phase < 4 ? (
+            <LayoutGroup>
+              <motion.div
+                layout
+                style={{
+                  display: 'flex',
+                  flexDirection: phase < 2 ? 'column' : 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: phase < 2 ? '0.12em' : 0,
+                }}
+                transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+              >
+                {/* "Destinations," word */}
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <AnimatePresence>
+                    {DEST_CHARS.map((ch, i) => {
+                      if (phase >= 3 && !DEST_SURVIVOR_INDICES.has(i)) return null;
+                      return (
+                        <motion.span
+                          key={`dest-${i}`}
+                          layout
+                          initial={{ opacity: 0, y: -22 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, width: 0 }}
+                          transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
+                          style={{
+                            display: 'inline-block',
+                            fontFamily: 'var(--font-serif), Georgia, serif',
+                            fontSize: 'clamp(38px, 6.8vw, 94px)',
+                            fontWeight: 500,
+                            letterSpacing: '-0.035em',
+                            lineHeight: 1,
+                            color: 'var(--charcoal)',
+                          }}
+                        >
+                          {ch === ' ' ? ' ' : ch}
+                        </motion.span>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
 
-          {/* "Destinations, simplified" — phase 1 & 2 */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.12em",
-              opacity: phase >= 1 && phase < 3 ? 1 : 0,
-              transform:
-                phase >= 2
-                  ? "scale(0.06)"
-                  : "scale(1)",
-              transition:
-                phase === 2
-                  ? "opacity 0.75s ease 0.15s, transform 0.85s cubic-bezier(0.4,0,1,1)"
-                  : "opacity 0.5s ease",
-              pointerEvents: "none",
-            }}
-          >
-            {/* "Destinations," */}
+                {/* "simplified" word */}
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <AnimatePresence>
+                    {SIMP_CHARS.map((ch, i) => {
+                      if (phase >= 3 && !SIMP_SURVIVOR_INDICES.has(i)) return null;
+                      return (
+                        <motion.span
+                          key={`simp-${i}`}
+                          layout
+                          initial={{ opacity: 0, y: 22 }}
+                          animate={{
+                            opacity: 1,
+                            y: 0,
+                            color: SIMP_SURVIVOR_INDICES.has(i) && phase >= 3
+                              ? 'var(--sage-deep)'
+                              : 'var(--terracotta)',
+                          }}
+                          exit={{ opacity: 0, width: 0 }}
+                          transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
+                          style={{
+                            display: 'inline-block',
+                            fontFamily: 'var(--font-serif), Georgia, serif',
+                            fontSize: 'clamp(38px, 6.8vw, 94px)',
+                            fontWeight: 500,
+                            letterSpacing: '-0.035em',
+                            lineHeight: 1,
+                            fontStyle: 'italic',
+                          }}
+                        >
+                          {ch === ' ' ? ' ' : ch}
+                        </motion.span>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            </LayoutGroup>
+          ) : (
+            /* Static wordmark at phase 4 — matches nav style, scaled up */
             <div
               style={{
-                fontFamily: "var(--font-serif), Georgia, serif",
-                fontSize: "clamp(38px, 6.8vw, 94px)",
+                fontFamily: 'var(--font-serif), Georgia, serif',
+                fontSize: 'clamp(52px, 8.5vw, 116px)',
                 fontWeight: 500,
-                letterSpacing: "-0.035em",
+                letterSpacing: '-0.035em',
                 lineHeight: 1,
-                color: "var(--charcoal)",
-                whiteSpace: "nowrap",
-                opacity: phase >= 1 ? 1 : 0,
-                transform: phase >= 1 ? "translateY(0)" : "translateY(-22px)",
-                transition: "opacity 0.65s ease, transform 0.65s ease",
+                color: 'var(--charcoal)',
               }}
             >
-              Destinations,
-            </div>
-
-            {/* "simplified" */}
-            <div
-              style={{
-                fontFamily: "var(--font-serif), Georgia, serif",
-                fontSize: "clamp(38px, 6.8vw, 94px)",
-                fontWeight: 500,
-                letterSpacing: "-0.035em",
-                lineHeight: 1,
-                fontStyle: "italic",
-                color: "var(--terracotta)",
-                whiteSpace: "nowrap",
-                opacity: phase >= 1 ? 1 : 0,
-                transform: phase >= 1 ? "translateY(0)" : "translateY(22px)",
-                transition: "opacity 0.65s ease 0.1s, transform 0.65s ease 0.1s",
-              }}
-            >
-              simplified
-            </div>
-          </div>
-
-          {/* Pulse ring — fires when Destify appears */}
-          {phase >= 3 && (
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: 160,
-                height: 160,
-                marginLeft: -80,
-                marginTop: -80,
-                borderRadius: "50%",
-                border: "1.5px solid rgba(110,128,104,.28)",
-                animation: "ring-out 1.1s ease-out forwards",
-                pointerEvents: "none",
-              }}
-            />
-          )}
-
-          {/* "Destify" — phase 3+ */}
-          {phase >= 3 && (
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                fontFamily: "var(--font-serif), Georgia, serif",
-                fontSize: "clamp(52px, 8.5vw, 116px)",
-                fontWeight: 500,
-                letterSpacing: "-0.035em",
-                lineHeight: 1,
-                color: "var(--charcoal)",
-                whiteSpace: "nowrap",
-                animation: "destify-bloom 0.72s cubic-bezier(0.34,1.56,0.64,1) forwards",
-                pointerEvents: "none",
-              }}
-            >
-              Dest<em style={{ fontStyle: "italic", color: "var(--sage-deep)" }}>ify</em>
+              Dest<em style={{ fontStyle: 'italic', color: 'var(--sage-deep)' }}>ified</em>
             </div>
           )}
         </div>
