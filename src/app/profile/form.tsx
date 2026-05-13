@@ -17,8 +17,12 @@ const T2 = [
 ];
 
 export function ProfileForm({ initial }: { initial: PermanentProfile | null }) {
-  const [c, setC] = useState<string[]>(initial?.citizenships.map((x) => x.country) ?? []);
-  const [home, setHome] = useState<string | null>(initial?.residence?.country ?? null);
+  const [citizenships, setCitizenships] = useState<{ country: string; passportExpiry: string | null }[]>(
+    initial?.citizenships ?? [],
+  );
+  const [residence, setResidence] = useState<{ country: string; visaStatus: 'tourist' | 'permanent' | 'digital-nomad' | 'work' | 'other' | null } | null>(
+    initial?.residence ?? null,
+  );
   const [conv, setConv] = useState<'1949' | '1968' | null>(initial?.idpConvention ?? null);
   const [expiry, setExpiry] = useState<string | null>(initial?.idpExpiry ?? null);
   const [meds, setMeds] = useState<string[]>(initial?.controlledMeds ?? []);
@@ -28,10 +32,8 @@ export function ProfileForm({ initial }: { initial: PermanentProfile | null }) {
 
   const save = () => startTransition(async () => {
     try {
-      const priorByCountry = new Map((initial?.citizenships ?? []).map((x) => [x.country, x.passportExpiry] as const));
       await saveProfileAction({
-        citizenships: c.map((country) => ({ country, passportExpiry: priorByCountry.get(country) ?? null })),
-        residence: home ? { country: home, visaStatus: home === initial?.residence?.country ? (initial?.residence?.visaStatus ?? null) : null } : null,
+        citizenships, residence,
         idpConvention: conv, idpExpiry: expiry,
         controlledMeds: meds, hasMinors,
       });
@@ -51,9 +53,54 @@ export function ProfileForm({ initial }: { initial: PermanentProfile | null }) {
 
         <Section title="Identity">
           <Label>Citizenships</Label>
-          <MultiCountry value={c} onChange={setC} />
-          <Label style={{ marginTop: 16 }}>Home country</Label>
-          <SingleCountry value={home} onChange={setHome} />
+          <MultiCountry
+            value={citizenships.map((c) => c.country)}
+            onChange={(codes) => {
+              const next = codes.map((code) =>
+                citizenships.find((c) => c.country === code) ?? { country: code, passportExpiry: null },
+              );
+              setCitizenships(next);
+            }}
+          />
+
+          {citizenships.map((c) => (
+            <div key={c.country} style={{ marginTop: 10 }}>
+              <Label>{c.country} passport expiry (optional)</Label>
+              <input
+                type="date"
+                value={c.passportExpiry ?? ''}
+                onChange={(e) => setCitizenships(citizenships.map((x) =>
+                  x.country === c.country ? { ...x, passportExpiry: e.target.value || null } : x,
+                ))}
+                style={inputStyle}
+              />
+            </div>
+          ))}
+
+          <Label style={{ marginTop: 16 }}>Country of residence</Label>
+          <SingleCountry
+            value={residence?.country ?? null}
+            onChange={(v) => setResidence(v ? { country: v, visaStatus: residence?.visaStatus ?? null } : null)}
+          />
+
+          {residence && (
+            <>
+              <Label style={{ marginTop: 12 }}>Visa status in this country (optional)</Label>
+              <select
+                value={residence.visaStatus ?? ''}
+                onChange={(e) => setResidence({ ...residence, visaStatus: (e.target.value || null) as 'tourist' | 'permanent' | 'digital-nomad' | 'work' | 'other' | null })}
+                style={inputStyle}
+              >
+                <option value="">— none —</option>
+                <option value="tourist">Tourist</option>
+                <option value="permanent">Permanent resident</option>
+                <option value="digital-nomad">Digital-nomad visa</option>
+                <option value="work">Work visa</option>
+                <option value="other">Other</option>
+              </select>
+            </>
+          )}
+
           <Label style={{ marginTop: 16 }}>Has minors</Label>
           <YesNo value={hasMinors} onChange={setHasMinors} />
         </Section>
