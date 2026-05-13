@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { TRIP, type DocState, type FlowNode, type FlowChoice } from "@/lib/trip-data";
+import type { ResolverOutput } from "@/lib/rules/types";
 
 type FlowState = Record<string, boolean>; // node-id -> done?
 type FlowChoiceState = Record<string, string>; // node-id -> chosen choice id
@@ -32,7 +33,7 @@ type Actions = {
   toggleFlowDone: (flowId: string, nodeId: string) => void;
   setFlowChoice: (flowId: string, nodeId: string, choiceId: string) => void;
   resetFlowChoices: (flowId: string) => void;
-  applyResolution: (flowId: string, output: { choices: Record<string, { choiceId: string; ruleId: string; reason: string }>; info: Record<string, { title: string; desc: string; meta?: string; state: 'pass' | 'warn' | 'fail'; ruleId: string; reason: string }> }) => void;
+  applyResolution: (flowId: string, output: ResolverOutput) => void;
 };
 
 const initialDocs = Object.fromEntries(TRIP.docs.map((d) => [d.id, d.state]));
