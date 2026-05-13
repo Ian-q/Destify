@@ -7,8 +7,8 @@ import { COUNTRIES } from "@/lib/iso-countries";
 import { toast } from "@/components/destify/toast";
 
 type Tier1 = {
-  citizenships: string[];
-  homeCountry: string | null;
+  citizenships: { country: string; passportExpiry: string | null }[];
+  residence: { country: string; visaStatus: 'tourist' | 'permanent' | 'digital-nomad' | 'work' | 'other' | null } | null;
   idpConvention: '1949' | '1968' | null;
   idpExpiry: string | null;
   controlledMeds: string[];
@@ -17,7 +17,8 @@ type Tier1 = {
 };
 
 const EMPTY: Tier1 = {
-  citizenships: [], homeCountry: null,
+  citizenships: [],
+  residence: null,
   idpConvention: null, idpExpiry: null,
   controlledMeds: [], hasMinors: false,
   drivesAbroad: true,
@@ -33,8 +34,8 @@ export function Wizard() {
     startTransition(async () => {
       try {
         await saveProfileAction({
-          citizenships: next.citizenships.map((c) => ({ country: c, passportExpiry: null })),
-          residence: next.homeCountry ? { country: next.homeCountry, visaStatus: null } : null,
+          citizenships: next.citizenships,
+          residence: next.residence,
           idpConvention: next.drivesAbroad ? next.idpConvention : null,
           idpExpiry: next.drivesAbroad ? next.idpExpiry : null,
           controlledMeds: next.controlledMeds,
@@ -82,16 +83,72 @@ function Progress({ step, total }: { step: number; total: number }) {
 }
 
 function Identity({ data, setData }: { data: Tier1; setData: (d: Tier1) => void }) {
+  const setCitizenshipExpiry = (country: string, expiry: string | null) => {
+    setData({
+      ...data,
+      citizenships: data.citizenships.map((c) =>
+        c.country === country ? { ...c, passportExpiry: expiry } : c,
+      ),
+    });
+  };
+
   return (
     <div>
       <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, marginBottom: 4 }}>About you</h2>
       <p style={{ color: 'var(--mocha)', marginBottom: 20, fontSize: 14 }}>Used to personalize visa, driving, and health rules.</p>
 
       <Label>Citizenships</Label>
-      <MultiCountry value={data.citizenships} onChange={(v) => setData({ ...data, citizenships: v })} />
+      <MultiCountry
+        value={data.citizenships.map((c) => c.country)}
+        onChange={(codes) => {
+          const next = codes.map((code) =>
+            data.citizenships.find((c) => c.country === code) ?? { country: code, passportExpiry: null },
+          );
+          setData({ ...data, citizenships: next });
+        }}
+      />
 
-      <Label style={{ marginTop: 16 }}>Home country</Label>
-      <SingleCountry value={data.homeCountry} onChange={(v) => setData({ ...data, homeCountry: v })} />
+      {data.citizenships.map((c) => (
+        <div key={c.country} style={{ marginTop: 10 }}>
+          <Label>{c.country} passport expiry (optional)</Label>
+          <input
+            type="date"
+            value={c.passportExpiry ?? ''}
+            onChange={(e) => setCitizenshipExpiry(c.country, e.target.value || null)}
+            style={inputStyle}
+          />
+        </div>
+      ))}
+
+      <Label style={{ marginTop: 16 }}>Country of residence</Label>
+      <SingleCountry
+        value={data.residence?.country ?? null}
+        onChange={(v) => setData({
+          ...data,
+          residence: v ? { country: v, visaStatus: data.residence?.visaStatus ?? null } : null,
+        })}
+      />
+
+      {data.residence && (
+        <>
+          <Label style={{ marginTop: 12 }}>Visa status in this country (optional)</Label>
+          <select
+            value={data.residence.visaStatus ?? ''}
+            onChange={(e) => {
+              const v = (e.target.value || null) as 'tourist' | 'permanent' | 'digital-nomad' | 'work' | 'other' | null;
+              setData({ ...data, residence: { ...data.residence!, visaStatus: v } });
+            }}
+            style={inputStyle}
+          >
+            <option value="">— none —</option>
+            <option value="tourist">Tourist</option>
+            <option value="permanent">Permanent resident</option>
+            <option value="digital-nomad">Digital-nomad visa</option>
+            <option value="work">Work visa</option>
+            <option value="other">Other</option>
+          </select>
+        </>
+      )}
 
       <Label style={{ marginTop: 16 }}>Traveling with minors?</Label>
       <YesNo value={data.hasMinors} onChange={(v) => setData({ ...data, hasMinors: v })} />
